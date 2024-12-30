@@ -45,6 +45,16 @@ namespace KlimaKontrol
             }
         }
 
+        private SettingsViewModel settingsViewModel;
+        public SettingsViewModel SettingsViewModel
+        {
+            get { return settingsViewModel; }
+            set
+            {
+                settingsViewModel = value;
+                OnPropertyChanged("SettingsViewModel");
+            }
+        }
         public ICommand SettingsCommand { get; }
         public void SettingCmd(object param)
         {
@@ -58,12 +68,13 @@ namespace KlimaKontrol
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public MainViewModel(Autodesk.Revit.DB.Document doc, UserControl1 window,SettingsControl settings)
+        public MainViewModel(Autodesk.Revit.DB.Document doc, UserControl1 window,SettingsControl settings, SettingsViewModel settingsViewModel)
         {
             Window = window;
             Document = doc;
             SettingsCntrl = settings;
             SettingsCommand = new RelayCommand(SettingCmd);
+            SettingsViewModel = settingsViewModel;
         }
     }
 }

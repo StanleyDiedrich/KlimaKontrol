@@ -3,8 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:KlimaKontrol"
-             mc:Ignorable="d" 
+             xmlns:local="clr-namespace:KlimaKontrol" d:DataContext="{d:DesignInstance Type=local:SettingsViewModel}"
+        mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.RowDefinitions>
@@ -26,14 +26,11 @@
         </ListBox>
         <StackPanel Margin="20" Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center" >
 
+            <Button Content="Загрузить" Command="{Binding LoadCommand}" Width="100" Height="50" Margin="10,10,10,10" />
+            <Button Content="Удалить" Command="{Binding DeleteCommand}" Width="100" Height="50" Margin="10,10,10,10" />
+            <Button Content="Применить" Command="{Binding AcceptCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Width="100" Height="50" Margin="10,10,10,10" />
 
-
-            <Button Name="LoadFileButton" Content="Загрузить файл"  Width="100" Height="50" Margin="10,10,10,10" />
-            <Button Name="DeleteFileButton" Content="Удалить файл" Width="100" Height="50" Margin="10,10,10,10" />
-            <Button Name="LoadDatabasesButton" Content="Применить"  Width="100" Height="50" Margin="10,10,10,10"/>
-
-
-
+           
         </StackPanel>
     </Grid>
 </Window>

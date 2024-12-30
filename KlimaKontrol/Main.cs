@@ -22,11 +22,13 @@ namespace KlimaKontrol
 
             UserControl1 window = new UserControl1();
             SettingsControl settingsControl = new SettingsControl();
-            MainViewModel mainViewModel = new MainViewModel(doc, window, settingsControl);
+            SettingsViewModel settingsViewModel = new SettingsViewModel();
+            MainViewModel mainViewModel = new MainViewModel(doc, window, settingsControl,settingsViewModel);
 
             window.DataContext = mainViewModel;
+            settingsControl.DataContext = settingsViewModel;
             window.ShowDialog();
-
+            
 
             return Result.Succeeded;
         }

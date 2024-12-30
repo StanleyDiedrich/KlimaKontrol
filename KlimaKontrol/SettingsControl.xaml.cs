@@ -23,6 +23,7 @@ namespace KlimaKontrol
         public SettingsControl()
         {
             InitializeComponent();
+            
         }
     }
 }
