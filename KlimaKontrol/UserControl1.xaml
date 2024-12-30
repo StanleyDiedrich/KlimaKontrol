@@ -15,8 +15,8 @@
         </Grid.RowDefinitions>
         <Label HorizontalAlignment="Center" Content="Климатические параметры"></Label>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,30,10">
-            <Label Content="Настройки"></Label>
-            <Button Content="..." Height="30" Width="30" HorizontalAlignment="Right" Background="#5B9BD5" Foreground="White" ></Button>
+
+            <Button Content="Настройки" Height="30" Width="100" HorizontalAlignment="Right" Background="#5B9BD5" Foreground="White" Command="{Binding SettingsCommand}" ></Button>
         </StackPanel>
         <ScrollViewer Grid.Row="1">
         <StackPanel Grid.Row="1">

@@ -34,6 +34,23 @@ namespace KlimaKontrol
                 OnPropertyChanged("Window");
             }
         }
+        private SettingsControl settings;
+        public SettingsControl SettingsCntrl
+        {
+            get { return settings; }
+            set
+            {
+                settings = value;
+                OnPropertyChanged("SettingsCntrl");
+            }
+        }
+
+        public ICommand SettingsCommand { get; }
+        public void SettingCmd(object param)
+        {
+           SettingsCntrl.ShowDialog();
+        }
+       
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName)
@@ -41,10 +58,12 @@ namespace KlimaKontrol
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public MainViewModel(Autodesk.Revit.DB.Document doc, UserControl1 window)
+        public MainViewModel(Autodesk.Revit.DB.Document doc, UserControl1 window,SettingsControl settings)
         {
             Window = window;
             Document = doc;
+            SettingsCntrl = settings;
+            SettingsCommand = new RelayCommand(SettingCmd);
         }
     }
 }
