@@ -13,12 +13,15 @@ namespace KlimaKontrol
     public class Main : IExternalCommand
     {
         static AddInId AddInId = new AddInId(new Guid("B41EE846-761B-40C8-9C33-60C73F1F9C42"));
-
+       
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIApplication uiapp = commandData.Application;
             UIDocument uIDocument = uiapp.ActiveUIDocument;
             Autodesk.Revit.DB.Document doc = uIDocument.Document;
+
+
+            
 
             UserControl1 window = new UserControl1();
             SettingsControl settingsControl = new SettingsControl();
@@ -31,6 +34,7 @@ namespace KlimaKontrol
             
 
             return Result.Succeeded;
+            
         }
     }
 }

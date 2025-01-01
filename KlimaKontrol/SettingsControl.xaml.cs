@@ -23,7 +23,14 @@ namespace KlimaKontrol
         public SettingsControl()
         {
             InitializeComponent();
+
             
+        }
+
+        private void OnClosing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            this.Visibility = Visibility.Hidden;
+            e.Cancel = true;
         }
     }
 }

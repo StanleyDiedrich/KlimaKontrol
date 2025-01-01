@@ -24,5 +24,13 @@ namespace KlimaKontrol
         {
             InitializeComponent();
         }
+
+        /*private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            using (var db = new AppDbContext())
+            {
+                db.Database.EnsureCreated(); // Создание базы данных, если она не существует
+            }
+        }*/
     }
 }

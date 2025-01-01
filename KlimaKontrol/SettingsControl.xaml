@@ -5,25 +5,22 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:KlimaKontrol" d:DataContext="{d:DesignInstance Type=local:SettingsViewModel}"
         mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800" Closing="OnClosing">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="0.65*"></RowDefinition>
             <RowDefinition Height="0.35*"></RowDefinition>
         </Grid.RowDefinitions>
-        
-        <ListBox x:Name="DeleteHistoryListBoxItem" Width="500" Height="300" 
-                     ItemsSource="{Binding FilteredSystemNumbersList}"  
-                     SelectionMode="Multiple" Background="#D9D9D9" BorderBrush="#B0B0B0" BorderThickness="1" Grid.Row="0" Margin="10,10,10,10" >
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation="Horizontal">
-                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"/>
-                        <TextBlock Text="{Binding SystemName}" Margin="5,0,0,0"/>
-                    </StackPanel>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+
+        <DataGrid AutoGenerateColumns="False" x:Name="citiesGrid" ItemsSource="{Binding Cities}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding Id}" Header="Id" Width="100"/>
+                <DataGridTextColumn Binding="{Binding Town}" Header="Город" Width="100"/>
+                <DataGridTextColumn Binding="{Binding Min5Day_092}" Header="Т5_92" Width="110"/>
+                <DataGridTextColumn Binding="{Binding  Min5Day_098}" Header="Т5_98" Width="70"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
         <StackPanel Margin="20" Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center" >
 
             <Button Content="Загрузить" Command="{Binding LoadCommand}" Width="100" Height="50" Margin="10,10,10,10" />

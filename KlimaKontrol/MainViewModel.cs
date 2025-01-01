@@ -37,7 +37,14 @@ namespace KlimaKontrol
         private SettingsControl settings;
         public SettingsControl SettingsCntrl
         {
-            get { return settings; }
+            get
+            {
+                if (settings == null)
+                {
+                    settings = new SettingsControl();
+                }
+                return settings;
+            }
             set
             {
                 settings = value;
@@ -58,9 +65,15 @@ namespace KlimaKontrol
         public ICommand SettingsCommand { get; }
         public void SettingCmd(object param)
         {
+           if (SettingsCntrl == null)
+            {
+                SettingsCntrl = new SettingsControl();
+                SettingsCntrl.Show();
+            }
            SettingsCntrl.ShowDialog();
         }
-       
+
+        
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName)
@@ -75,6 +88,9 @@ namespace KlimaKontrol
             SettingsCntrl = settings;
             SettingsCommand = new RelayCommand(SettingCmd);
             SettingsViewModel = settingsViewModel;
+
+            
+
         }
     }
 }
