@@ -15,6 +15,7 @@
         <DataGrid AutoGenerateColumns="False" x:Name="citiesGrid" ItemsSource="{Binding Cities}">
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding Id}" Header="Id" Width="100"/>
+                <DataGridTextColumn Binding="{Binding Area}" Header="Id" Width="100"/>
                 <DataGridTextColumn Binding="{Binding Town}" Header="Город" Width="100"/>
                 <DataGridTextColumn Binding="{Binding Min5Day_092}" Header="Т5_92" Width="110"/>
                 <DataGridTextColumn Binding="{Binding  Min5Day_098}" Header="Т5_98" Width="70"/>

@@ -36,17 +36,18 @@ namespace KlimaKontrol
         public double WindVelocityAver { get; set; }
         private static int _nextId = 1;
         public City( string town, double min5Day_092, double min5Day_098, double minAbs_092,
-            double minAbs_098, double minAbs_094, double minAbs, double minAmpl, double averTempHP, double days_0,
+            double minAbs_098,  double minAbs, double minAmpl, double averTempHP, double days_0,
             double temp_0, double days_8, double temp_8, double days_10, double temp_10, double averHumidify,
             double averHumidify_15, double rainMM, string windDirection, double windVelocityMax, double windVelocityAver)
         {
             Id = _nextId;
             Town = town;
+            
             Min5Day_092 = min5Day_092;
             Min5Day_098 = min5Day_098;
             MinAbs_092 = minAbs_092;
             MinAbs_098 = minAbs_098;
-            MinAbs_094 = minAbs_094;
+            
             MinAbs = minAbs;
             MinAmpl = minAmpl;
             AverTempHP = averTempHP;
@@ -62,11 +63,12 @@ namespace KlimaKontrol
             WindDirection = windDirection;
             WindVelocityMax = windVelocityMax;
             WindVelocityAver = windVelocityAver;
-            if (Min5Day_092 ==0 )
-            {
-                Area = Town;
-            }
             _nextId++;
+        }
+        public City (string area)
+        {
+            Id = _nextId;
+            Area = area;
         }
         public City()
         {

@@ -12,6 +12,9 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Data.Entity;
 using System.Collections.ObjectModel;
+using Newtonsoft.Json;
+using System.IO;
+using System.Net.NetworkInformation;
 
 namespace KlimaKontrol
 {
@@ -45,7 +48,16 @@ namespace KlimaKontrol
         public ICommand LoadCommand { get; }
         public ICommand DeleteCommand { get; }
         public ICommand AcceptCommand { get; }
-        AppDbContext appDbContext;
+        private AppDbContext appDbContext { get; set; }
+        public AppDbContext AppDbContext
+        {
+            get { return appDbContext; }
+            set
+            {
+                appDbContext = value;
+                OnPropertyChanged(nameof(AppDbContext));
+            }
+        }
         public void LoadCntrl(object param)
         {
             OpenFileDialog dialog = new OpenFileDialog();
@@ -58,63 +70,91 @@ namespace KlimaKontrol
             {
                 FilePath = dialog.FileName;
             }
-            CreateNewTable();
-            //CreateNewTable(FilePath);
+            //CreateNewTable();
+            CreateNewTable(FilePath);
         }
 
-        private void CreateNewTable()
+        /*private void CreateNewTable()
         {
             City newCity = new City(); // Создание нового экземпляра
             Cities.Add(newCity); // Добавление нового города в коллекцию
-        }
-        /*private void CreateNewTable(string filePath)
+        }*/
+        private void CreateNewTable(string filePath)
         {
-            List<City> cityList = new List<City>();
+            
             ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
             using (ExcelPackage package = new ExcelPackage(filePath))
             {
                 ExcelWorksheet worksheet = package.Workbook.Worksheets["ХП"]; // Первая таблица
                 int rowCount = worksheet.Dimension.Rows;
-
+                string area = "";
 
                 for (int i = 6; i < rowCount; i++)
                 {
-                    string town = worksheet.Cells[i, 1].Text;
-                    double min5Day_092 = double.Parse(worksheet.Cells[i, 2].Text);
-                    double min5Day_098 = double.Parse(worksheet.Cells[i, 3].Text);
-                    double minAbs_092 = double.Parse(worksheet.Cells[i, 4].Text);
-                    double minAbs_098 = double.Parse(worksheet.Cells[i, 5].Text);
-                    double minAbs_094 = double.Parse(worksheet.Cells[i, 6].Text);
-                    double minAbs = double.Parse(worksheet.Cells[i, 7].Text);
-                    double minAmpl = double.Parse(worksheet.Cells[i, 8].Text);
-                    double averTempHP = double.Parse(worksheet.Cells[i, 9].Text);
-                    double days_0 = double.Parse(worksheet.Cells[i, 10].Text);
-                    double temp_0 = double.Parse(worksheet.Cells[i, 11].Text);
-                    double days_8 = double.Parse(worksheet.Cells[i, 12].Text);
-                    double temp_8 = double.Parse(worksheet.Cells[i, 13].Text);
-                    double days_10 = double.Parse(worksheet.Cells[i, 14].Text);
-                    double temp_10 = double.Parse(worksheet.Cells[i, 15].Text);
-                    double averHumidify = double.Parse(worksheet.Cells[i, 16].Text);
-                    double averHumidify_15 = double.Parse(worksheet.Cells[i, 17].Text);
-                    double rainMM = double.Parse(worksheet.Cells[i, 18].Text);
-                    string windDirection = worksheet.Cells[i, 19].Text;
-                    double windVelocityMax = double.Parse(worksheet.Cells[i, 20].Text);
-                    double windVelocityAver = double.Parse(worksheet.Cells[i, 21].Text);
+                    try
+                    {
+                        string town = worksheet.Cells[i, 1].Text;
+                        if (worksheet.Cells[i, 2].Text == "")
+                        {
+                            area = town;
+                            City city = new City(area);
+                            Cities.Add(city);
+                            continue;
+                        }
+                        double min5Day_092 = double.Parse(worksheet.Cells[i, 2].Text);
+                        double min5Day_098 = double.Parse(worksheet.Cells[i, 3].Text);
+                        double minAbs_092 = double.Parse(worksheet.Cells[i, 4].Text);
+                        double minAbs_098 = double.Parse(worksheet.Cells[i, 5].Text);
 
-                    City newCity = new City(town, min5Day_092, min5Day_098, minAbs_092, minAbs_098, minAbs_094, minAbs, minAmpl,
-                                            averTempHP, days_0, temp_0, days_8, temp_8, days_10, temp_10, averHumidify,
-                                            averHumidify_15, rainMM, windDirection, windVelocityMax, windVelocityAver);
+                        double minAbs = double.Parse(worksheet.Cells[i, 6].Text);
+                        double minAmpl = double.Parse(worksheet.Cells[i, 7].Text);
+                        double averTempHP = double.Parse(worksheet.Cells[i, 8].Text);
+                        double days_0 = double.Parse(worksheet.Cells[i, 9].Text);
+                        double temp_0 = double.Parse(worksheet.Cells[i, 10].Text);
+                        double days_8 = double.Parse(worksheet.Cells[i, 11].Text);
+                        double temp_8 = double.Parse(worksheet.Cells[i, 12].Text);
+                        double days_10 = double.Parse(worksheet.Cells[i, 13].Text);
+                        double temp_10 = double.Parse(worksheet.Cells[i, 14].Text);
+                        double averHumidify = double.Parse(worksheet.Cells[i, 15].Text);
+                        double averHumidify_15 = double.Parse(worksheet.Cells[i, 16].Text);
+                        double rainMM = double.Parse(worksheet.Cells[i, 17].Text);
+                        string windDirection = worksheet.Cells[i, 18].Text;
+                        double windVelocityMax = double.Parse(worksheet.Cells[i, 19].Text);
+                        double windVelocityAver = double.Parse(worksheet.Cells[i, 20].Text);
 
-                    cityList.Add(newCity);
+                        City newCity = new City(town, min5Day_092, min5Day_098, minAbs_092, minAbs_098, minAbs, minAmpl,
+                                                averTempHP, days_0, temp_0, days_8, temp_8, days_10, temp_10, averHumidify,
+                                                averHumidify_15, rainMM, windDirection, windVelocityMax, windVelocityAver);
+                        newCity.Area = area;
 
+                        Cities.Add(newCity);
+
+
+                    }
+                    catch
+                    { }
                 }
 
 
             }
+            string pluginDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string jsonFilePath = Path.Combine(pluginDirectory, "cities.json");
+            SaveCitiesToJson(filePath);
             
-                    
-            
-        }*/
+        }
+        private void SaveCitiesToJson(string filePath)
+        {
+            try
+            {
+                string json = JsonConvert.SerializeObject(Cities, Formatting.Indented);
+                File.WriteAllText(filePath, json);
+            }
+            catch (Exception ex)
+            {
+                // Обработка ошибок
+                Console.WriteLine("Ошибка при сохранении в JSON: " + ex.Message);
+            }
+        }
 
         public void DeleteCntrl(object param)
         {
@@ -127,7 +167,7 @@ namespace KlimaKontrol
                 // Сохраните настройки или выполните другие нужные операции здесь
 
                 // Закрытие окна настроек
-                appDbContext.SaveChanges();
+               
                 
                 
                 
@@ -141,13 +181,14 @@ namespace KlimaKontrol
 
         public SettingsViewModel()
         {
-            appDbContext = new AppDbContext();
-            appDbContext.Cities.Load();
-            Cities = new ObservableCollection<City>(appDbContext.Cities.Local.ToList());
-            OnPropertyChanged(nameof(Cities));
+            string pluginDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string jsonFilePath = Path.Combine(pluginDirectory, "cities.json");
+            string json = File.ReadAllText(jsonFilePath);
             LoadCommand = new RelayCommand(LoadCntrl);
             DeleteCommand = new RelayCommand(DeleteCntrl);
             AcceptCommand = new RelayCommand(AcceptCntrl);
+            Cities = JsonConvert.DeserializeObject<ObservableCollection<City>>(json);
+            OnPropertyChanged(nameof(Cities));
         }
     }
 }

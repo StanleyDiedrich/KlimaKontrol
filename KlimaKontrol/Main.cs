@@ -21,8 +21,8 @@ namespace KlimaKontrol
             Autodesk.Revit.DB.Document doc = uIDocument.Document;
 
 
+            AppDbContext appDbContext = new AppDbContext();
             
-
             UserControl1 window = new UserControl1();
             SettingsControl settingsControl = new SettingsControl();
             SettingsViewModel settingsViewModel = new SettingsViewModel();
