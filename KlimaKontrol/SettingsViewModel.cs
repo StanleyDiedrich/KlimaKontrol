@@ -71,7 +71,7 @@ namespace KlimaKontrol
                 FilePath = dialog.FileName;
             }
             //CreateNewTable();
-            CreateNewTable(FilePath);
+            //CreateNewTable(FilePath);
         }
 
         /*private void CreateNewTable()
@@ -79,7 +79,7 @@ namespace KlimaKontrol
             City newCity = new City(); // Создание нового экземпляра
             Cities.Add(newCity); // Добавление нового города в коллекцию
         }*/
-        private void CreateNewTable(string filePath)
+        /*private void CreateNewTable(string filePath)
         {
             
             ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
@@ -141,8 +141,8 @@ namespace KlimaKontrol
             string jsonFilePath = Path.Combine(pluginDirectory, "cities.json");
             SaveCitiesToJson(filePath);
             
-        }
-        private void SaveCitiesToJson(string filePath)
+        }*/
+       /* private void SaveCitiesToJson(string filePath)
         {
             try
             {
@@ -154,9 +154,9 @@ namespace KlimaKontrol
                 // Обработка ошибок
                 Console.WriteLine("Ошибка при сохранении в JSON: " + ex.Message);
             }
-        }
+        }*/
 
-        public void DeleteCntrl(object param)
+        /*public void DeleteCntrl(object param)
         {
 
         }
@@ -172,22 +172,23 @@ namespace KlimaKontrol
                 
                 
             }
-        }
+        }*/
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public SettingsViewModel()
+        public SettingsViewModel(ObservableCollection<City> cities)
         {
-            string pluginDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            /*string pluginDirectory = AppDomain.CurrentDomain.BaseDirectory;
             string jsonFilePath = Path.Combine(pluginDirectory, "cities.json");
-            string json = File.ReadAllText(jsonFilePath);
+            string json = File.ReadAllText(jsonFilePath);*/
             LoadCommand = new RelayCommand(LoadCntrl);
-            DeleteCommand = new RelayCommand(DeleteCntrl);
-            AcceptCommand = new RelayCommand(AcceptCntrl);
-            Cities = JsonConvert.DeserializeObject<ObservableCollection<City>>(json);
+           // DeleteCommand = new RelayCommand(DeleteCntrl);
+            //AcceptCommand = new RelayCommand(AcceptCntrl);
+            Cities = cities;
+           // Cities = JsonConvert.DeserializeObject<ObservableCollection<City>>(json);
             OnPropertyChanged(nameof(Cities));
         }
     }
