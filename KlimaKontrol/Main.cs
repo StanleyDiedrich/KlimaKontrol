@@ -47,7 +47,7 @@ namespace KlimaKontrol
             UserControl1 window = new UserControl1();
             SettingsControl settingsControl = new SettingsControl();
             SettingsViewModel settingsViewModel = new SettingsViewModel(Cities);  // Используем Cities 
-            MainViewModel mainViewModel = new MainViewModel(doc, window, settingsControl, settingsViewModel);
+            MainViewModel mainViewModel = new MainViewModel(doc, window, settingsControl, settingsViewModel, Cities);
 
             window.DataContext = mainViewModel;
             settingsControl.DataContext = settingsViewModel;

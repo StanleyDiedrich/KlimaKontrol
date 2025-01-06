@@ -22,50 +22,40 @@
         <StackPanel Grid.Row="1">
             
                 <Label Content="Область"  VerticalAlignment="Top" Margin="10" Grid.Row="0" HorizontalAlignment="Center" />
-                <ComboBox x:Name="ComboBoxArea" Width="400"
-          ItemsSource="{Binding AreaList}" 
-          Background="#D9D9D9" BorderBrush="#B0B0B0" BorderThickness="1"
-          Margin="10" Grid.Row="2">
+                <ComboBox x:Name="ComboBoxArea" Width="400" 
+              ItemsSource="{Binding Areas}"  
+              SelectedItem="{Binding SelectedArea, Mode=TwoWay}" 
+              Background="#D9D9D9" BorderBrush="#B0B0B0" 
+              BorderThickness="1" Margin="10" Grid.Row="2">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"/>
-                                <TextBlock Text="{Binding SystemName}" Margin="5,0,0,0"/>
-                            </StackPanel>
+                            <TextBlock Text="{Binding AreaName}" Margin="5,0,0,0"/>
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
-                <Label Content="Город" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="10" Grid.Row="2"/>
-                <ComboBox x:Name="ComboBoxCity" Width="400"
-          ItemsSource="{Binding FilteredSystemNumbersList}" 
-          Background="#D9D9D9" BorderBrush="#B0B0B0" BorderThickness="1"
-          Margin="10" Grid.Row="2">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"/>
-                                <TextBlock Text="{Binding SystemName}" Margin="5,0,0,0"/>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
+
+
+
                 <Label Content="Выбери связанную модель" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="10" Grid.Row="2"/>
-                <ComboBox x:Name="ComboBoxLinkedModel" Width="400"
-          ItemsSource="{Binding LinkedModelList}" 
-          Background="#D9D9D9" BorderBrush="#B0B0B0" BorderThickness="1"
-          Margin="10" Grid.Row="2">
+
+                <ComboBox x:Name="ComboBoxCity" Width="400" 
+               ItemsSource="{Binding PreparedCity}" 
+               SelectedItem="{Binding SelectedCity, Mode=TwoWay}" 
+               Background="#D9D9D9" BorderBrush="#B0B0B0" 
+               BorderThickness="1" Margin="10" Grid.Row="2">
+
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"/>
-                                <TextBlock Text="{Binding SystemName}" Margin="5,0,0,0"/>
-                            </StackPanel>
+                            <TextBlock Text="{Binding Town}" Margin="5,0,0,0"/>
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
+
                 </ComboBox>
+
+
                 <Label Content="Глубина заложения, м" HorizontalAlignment="Center" Margin="10,10,10,10"></Label>
                 <TextBox x:Name="DepthInputBox" Width="400" Margin="5" 
-             Text="{Binding DepthInput}"/>
+             Text="{Binding Underground}"/>
         </StackPanel>
         </ScrollViewer>
            
