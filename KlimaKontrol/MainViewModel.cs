@@ -9,6 +9,8 @@ using Autodesk.Revit.DB;
 using System.Windows.Input;
 using System.Windows;
 using System.Windows.Forms;
+using Autodesk.Revit.UI;
+using Autodesk.Revit.Creation;
 
 namespace KlimaKontrol
 {
@@ -153,6 +155,47 @@ namespace KlimaKontrol
            SettingsCntrl.ShowDialog();
         }
 
+
+        public ICommand StartCommand { get; }
+        public void StartCmd(object param)
+        {
+            if (SelectedLink!=null && SelectedCity!=null && SelectedArea!=null)
+            {
+                CollectAllRooms(Document, SelectedLink);
+            }
+            else
+            {
+                TaskDialog.Show("Ошибка", "Необходимо заполнить поля");
+            }
+        }
+
+        private void CollectAllRooms(Autodesk.Revit.DB.Document document, Element selectedLink)
+        {
+            var activedocument = (document.GetElement(selectedLink.Id) as RevitLinkInstance).GetLinkDocument();
+            FilteredElementCollector linkedFilter = new FilteredElementCollector(activedocument);
+            var selectedRooms = linkedFilter.OfCategory(BuiltInCategory.OST_Rooms).WhereElementIsNotElementType().ToList();
+
+            foreach (var room in selectedRooms) {
+                {
+                    var defroom = room as SpatialElement;
+                    if (defroom != null)
+                    {
+                        defroom.GetBoundarySegments();
+                    }
+
+                }
+
+            string a = "";
+
+            foreach (var o in selectedRooms)
+            {
+                a+=o.Id.ToString()+"\n";
+            }
+
+            TaskDialog.Show("Вывод помещений", a);
+           
+        }
+
         private ObservableCollection<City> preparedCity { get; set; } = new ObservableCollection<City>();
         public ObservableCollection<City> PreparedCity
         {
@@ -208,6 +251,7 @@ namespace KlimaKontrol
             Window = window;
             Document = doc;
             SettingsCntrl = settings;
+            StartCommand = new RelayCommand(StartCmd);
             SettingsCommand = new RelayCommand(SettingCmd);
             SettingsViewModel = settingsViewModel;
             Cities = cities;
