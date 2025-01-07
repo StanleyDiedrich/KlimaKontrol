@@ -174,26 +174,53 @@ namespace KlimaKontrol
             var activedocument = (document.GetElement(selectedLink.Id) as RevitLinkInstance).GetLinkDocument();
             FilteredElementCollector linkedFilter = new FilteredElementCollector(activedocument);
             var selectedRooms = linkedFilter.OfCategory(BuiltInCategory.OST_Rooms).WhereElementIsNotElementType().ToList();
-
-            foreach (var room in selectedRooms) {
-                {
+            SpatialElementBoundaryOptions options = new SpatialElementBoundaryOptions();
+            List<CustomWall> walls = new List<CustomWall>();
+            foreach (var room in selectedRooms)
+            {
+                
                     var defroom = room as SpatialElement;
                     if (defroom != null)
                     {
-                        defroom.GetBoundarySegments();
+                        var spatialElements = defroom.GetBoundarySegments(options);
+                        List<SpatialElement> boundaries = new List<SpatialElement>();
+
+                        foreach (var spatialElement in spatialElements)
+                        {
+                            foreach (var boundary in spatialElement)
+                            {
+                                if (boundary == null)
+                                {
+                                    continue;
+                                }
+                                else
+                                {
+                                    if (activedocument.GetElement(boundary.ElementId) is Wall)
+                                    {
+                                        CustomWall customWall = new CustomWall(activedocument, boundary.ElementId, room.Id);
+                                        walls.Add(customWall);
+                                    }
+                                }
+                            }
+                            
+                        }
+                        
+                        
                     }
 
-                }
+                
 
+               
+
+            }
             string a = "";
 
-            foreach (var o in selectedRooms)
+            foreach (var o in walls)
             {
-                a+=o.Id.ToString()+"\n";
+                a += $"{o.ElementId};{o.RoomName};\n";
             }
 
             TaskDialog.Show("Вывод помещений", a);
-           
         }
 
         private ObservableCollection<City> preparedCity { get; set; } = new ObservableCollection<City>();
