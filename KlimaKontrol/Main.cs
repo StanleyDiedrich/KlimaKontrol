@@ -44,10 +44,18 @@ namespace KlimaKontrol
                 LoadDefaultJSON();
             }
 
+            FilteredElementCollector filteredModels = new FilteredElementCollector(doc);
+            var fmodels = filteredModels.OfClass(typeof(RevitLinkInstance)).ToList();
+
+
+
+
+
+
             UserControl1 window = new UserControl1();
             SettingsControl settingsControl = new SettingsControl();
             SettingsViewModel settingsViewModel = new SettingsViewModel(Cities);  // Используем Cities 
-            MainViewModel mainViewModel = new MainViewModel(doc, window, settingsControl, settingsViewModel, Cities);
+            MainViewModel mainViewModel = new MainViewModel(doc, window, settingsControl, settingsViewModel, Cities, fmodels);
 
             window.DataContext = mainViewModel;
             settingsControl.DataContext = settingsViewModel;

@@ -169,6 +169,33 @@ namespace KlimaKontrol
             }
         }
 
+        private List<Element> revitLinkInstances { get; set; } = new List<Element>();
+        public List<Element> RevitLinkInstances
+        {
+            get
+            {
+                return revitLinkInstances;
+            }
+            set
+            {
+                revitLinkInstances = value;
+                OnPropertyChanged(nameof(RevitLinkInstances));
+            }
+        }
+
+        private Element selectedLink {  get; set; }
+        public Element SelectedLink
+        {
+            get
+            {
+                return selectedLink;
+            }
+            set
+            {
+                selectedLink = value;
+                OnPropertyChanged(nameof(SelectedLink));
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName)
@@ -176,7 +203,7 @@ namespace KlimaKontrol
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public MainViewModel(Autodesk.Revit.DB.Document doc, UserControl1 window,SettingsControl settings, SettingsViewModel settingsViewModel, ObservableCollection<City> cities)
+        public MainViewModel(Autodesk.Revit.DB.Document doc, UserControl1 window,SettingsControl settings, SettingsViewModel settingsViewModel, ObservableCollection<City> cities, List<Element> revitLinkInstances)
         {
             Window = window;
             Document = doc;
@@ -186,15 +213,16 @@ namespace KlimaKontrol
             Cities = cities;
             Areas = new ObservableCollection<Areas>();
             PreparedCity = new ObservableCollection<City>();
-
+            RevitLinkInstances = revitLinkInstances;
             foreach (var city in cities)
             {
-                if (city.Min5Day_092==0)
+                if (city.Min5Day_092 == 0)
                 {
                     Areas area = new Areas(city.Area);
                     Areas.Add(area);
                 }
             }
+
 
             /*foreach (var city in cities)
             {
