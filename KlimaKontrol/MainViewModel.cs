@@ -176,6 +176,7 @@ namespace KlimaKontrol
             var selectedRooms = linkedFilter.OfCategory(BuiltInCategory.OST_Rooms).WhereElementIsNotElementType().ToList();
             SpatialElementBoundaryOptions options = new SpatialElementBoundaryOptions();
             List<CustomWall> walls = new List<CustomWall>();
+            HashSet<(ElementId wallId, ElementId roomId)> uniquePairs = new HashSet<(ElementId, ElementId)>();
             foreach (var room in selectedRooms)
             {
                 
@@ -189,30 +190,34 @@ namespace KlimaKontrol
                         {
                             foreach (var boundary in spatialElement)
                             {
-                                if (boundary == null)
+                                if (boundary != null)
                                 {
-                                    continue;
-                                }
-                                else
-                                {
-                                    if (activedocument.GetElement(boundary.ElementId) is Wall)
+                                    if (activedocument.GetElement(boundary.ElementId) is Wall wall)
                                     {
-                                        CustomWall customWall = new CustomWall(activedocument, boundary.ElementId, room.Id);
-                                        walls.Add(customWall);
+                                        var pair = (boundary.ElementId, room.Id); // Создаем кортеж
+
+                                        // Проверяем уникальность комбинации wallId и roomId
+                                        if (uniquePairs.Add(pair)) // Попытка добавить возвращает false, если уже существует
+                                        {
+                                            CustomWall customWall = new CustomWall(activedocument, boundary.ElementId, room.Id);
+                                            walls.Add(customWall);
+                                        }
                                     }
                                 }
                             }
-                            
                         }
-                        
-                        
                     }
+                            
+            }
+                        
+                        
+            
 
                 
 
                
 
-            }
+            
             string a = "";
 
             foreach (var o in walls)
