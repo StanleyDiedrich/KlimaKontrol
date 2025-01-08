@@ -227,7 +227,18 @@ namespace KlimaKontrol
                             {
                                 if (activedocument.GetElement(boundary.ElementId) is Wall wall)
                                 {
-                                    double length = boundary.GetCurve().Length;
+                                    var points = boundary.GetCurve().Tessellate();
+                                    double  p1X = points[0].X;
+                                    double p1Y = points[0].Y;
+                                    double p1Z = points[0].Z;
+                                    double p2X = points[1].X;
+                                    double p2Y = points[1].Y;
+                                    double p2Z = points[1].Z;
+                                    double dx = p2X - p1X;
+                                    double dy = p2Y - p1Y;
+                                    double dz = p2Z - p1Z;
+                                    double length = Math.Sqrt(dx * dx + dy * dy + dz * dz);
+                                   
                                     CustomWall customWall = new CustomWall(activedocument, boundary.ElementId, room.Id, length,
                                                    preparedCity, insideTemp);
                                     walls.Add(customWall);
@@ -256,18 +267,29 @@ namespace KlimaKontrol
             {
                 bool isPairFound = false;
 
-                for (int j = 1; j < walls.Count; j++)
+                for (int j = 0; j < walls.Count; j++)
                 {
                     if (i == j)
                     {
                         continue;
                     }
 
-                    if (walls[i].ElementId == walls[j].ElementId && walls[i].Length == walls[j].Length)
+                    if (walls[i].ElementId == new ElementId(1546360))
                     {
-                        pairofWalls.Add(walls[i], walls[j]);
-                        isPairFound = true;
-                        break; // Если пара найдена, можно выйти из внутреннего цикла
+                        if (walls[j].ElementId == new ElementId(1546360))
+                        {
+                            if (walls[i].ElementId == walls[j].ElementId)
+                            {
+                                if (walls[i].RoomId != walls[j].RoomId)
+                                {
+                                    pairofWalls.Add(walls[i], walls[j]);
+                                    isPairFound = true;
+                                    break; // Если пара найдена, можно выйти из внутреннего цикла
+                                }
+                            }
+                        }
+                        
+                        
                     }
                 }
 
