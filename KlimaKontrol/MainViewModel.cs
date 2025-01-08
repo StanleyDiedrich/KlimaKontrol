@@ -11,6 +11,8 @@ using System.Windows;
 using System.Windows.Forms;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.Creation;
+using OfficeOpenXml.Drawing.Chart;
+using System.IO;
 
 namespace KlimaKontrol
 {
@@ -161,7 +163,7 @@ namespace KlimaKontrol
         {
             if (SelectedLink!=null && SelectedCity!=null && SelectedArea!=null)
             {
-                CollectAllRooms(Document, SelectedLink);
+                CollectAllRooms(Document, SelectedLink,SelectedCity);
             }
             else
             {
@@ -169,7 +171,8 @@ namespace KlimaKontrol
             }
         }
 
-        private void CollectAllRooms(Autodesk.Revit.DB.Document document, Element selectedLink)
+        [Obsolete]
+        private void CollectAllRooms(Autodesk.Revit.DB.Document document, Element selectedLink, City preparedCity)
         {
             var activedocument = (document.GetElement(selectedLink.Id) as RevitLinkInstance).GetLinkDocument();
             FilteredElementCollector linkedFilter = new FilteredElementCollector(activedocument);
@@ -179,53 +182,204 @@ namespace KlimaKontrol
             HashSet<(ElementId wallId, ElementId roomId)> uniquePairs = new HashSet<(ElementId, ElementId)>();
             foreach (var room in selectedRooms)
             {
-                
-                    var defroom = room as SpatialElement;
-                    if (defroom != null)
+                var insideTemp = 0;
+                string roomtype = room.LookupParameter("ADSK_Тип квартиры").AsString();
+                if (roomtype == "Кухня")
+                {
+                    insideTemp = 19;
+                }
+                else if (roomtype == "Бытовое помещение")
+                {
+                    insideTemp = 20;
+                }
+                else if (roomtype == "Бойлерная")
+                {
+                    insideTemp = 16;
+                }
+                else if (roomtype == "Гараж")
+                {
+                    insideTemp = 16;
+                }
+                else if (roomtype == "Жилая комната")
+                {
+                    insideTemp = 20;
+                }
+                else if (roomtype == "Коридор")
+                {
+                    insideTemp = 20;
+                }
+                else if (roomtype == "С/у")
+                {
+                    insideTemp = 25;
+                }
+
+                var defroom = room as SpatialElement;
+                if (defroom != null)
+                {
+                    var spatialElements = defroom.GetBoundarySegments(options);
+                    List<SpatialElement> boundaries = new List<SpatialElement>();
+
+                    foreach (var spatialElement in spatialElements)
                     {
-                        var spatialElements = defroom.GetBoundarySegments(options);
-                        List<SpatialElement> boundaries = new List<SpatialElement>();
-
-                        foreach (var spatialElement in spatialElements)
+                        foreach (var boundary in spatialElement)
                         {
-                            foreach (var boundary in spatialElement)
+                            if (boundary != null)
                             {
-                                if (boundary != null)
+                                if (activedocument.GetElement(boundary.ElementId) is Wall wall)
                                 {
-                                    if (activedocument.GetElement(boundary.ElementId) is Wall wall)
-                                    {
-                                        var pair = (boundary.ElementId, room.Id); // Создаем кортеж
+                                    double length = boundary.GetCurve().Length;
+                                    CustomWall customWall = new CustomWall(activedocument, boundary.ElementId, room.Id, length,
+                                                   preparedCity, insideTemp);
+                                    walls.Add(customWall);
+                                    /* var pair = (boundary.ElementId, room.Id); // Создаем кортеж
 
-                                        // Проверяем уникальность комбинации wallId и roomId
-                                        if (uniquePairs.Add(pair)) // Попытка добавить возвращает false, если уже существует
-                                        {
-                                            CustomWall customWall = new CustomWall(activedocument, boundary.ElementId, room.Id);
-                                            walls.Add(customWall);
-                                        }
-                                    }
+                                     // Проверяем уникальность комбинации wallId и roomId
+                                     if (uniquePairs.Add(pair)) // Попытка добавить возвращает false, если уже существует
+                                     {
+                                         double length = boundary.GetCurve().Length;
+                                         CustomWall customWall = new CustomWall(activedocument, boundary.ElementId, room.Id, length,
+                                             preparedCity, insideTemp);
+                                         walls.Add(customWall);
+                                     }*/
                                 }
                             }
                         }
                     }
-                            
+                }
+
             }
-                        
-                        
-            
 
-                
+            List<CustomWall> outsideWalls = new List<CustomWall>();
+            Dictionary<CustomWall, CustomWall> pairofWalls = new Dictionary<CustomWall, CustomWall>();
 
-               
-
-            
-            string a = "";
-
-            foreach (var o in walls)
+            for (int i = 0; i < walls.Count; i++)
             {
-                a += $"{o.ElementId};{o.RoomName};\n";
+                bool isPairFound = false;
+
+                for (int j = 1; j < walls.Count; j++)
+                {
+                    if (i == j)
+                    {
+                        continue;
+                    }
+
+                    if (walls[i].ElementId == walls[j].ElementId && walls[i].Length == walls[j].Length)
+                    {
+                        pairofWalls.Add(walls[i], walls[j]);
+                        isPairFound = true;
+                        break; // Если пара найдена, можно выйти из внутреннего цикла
+                    }
+                }
+
+                if (!isPairFound && !outsideWalls.Contains(walls[i]))
+                {
+                    outsideWalls.Add(walls[i]);
+                }
             }
 
-            TaskDialog.Show("Вывод помещений", a);
+            foreach (var pairofwall in pairofWalls)
+            {
+
+                CustomWall wall1 = pairofwall.Key;
+                CustomWall wall2 = pairofwall.Value;
+
+                if (wall1.ElementId == new ElementId(1546366))
+                {
+                    wall1 = wall1;
+                }
+                double temp1 = wall1.TempInside;
+                double temp2 = wall2.TempInside;
+
+                if (temp1 > temp2)
+                {
+                    
+                    wall1.TempOutside = temp1;
+                    wall2.TempOutside = temp2;
+
+                }
+                else if (temp1 < temp2)
+                {
+                    wall1.TempOutside = temp2;
+                    wall2.TempOutside = temp1;
+                }
+                else if (temp1 == temp2)
+                {
+                    wall1.TempOutside = temp2;
+                    wall2.TempOutside= temp1;
+
+                }
+
+
+                if (!outsideWalls.Contains(wall1))
+                {
+                    outsideWalls.Add(wall1);
+                }
+
+            }
+
+
+            var groupedRooms = walls.GroupBy(wall => wall.RoomId);
+            foreach (var roomGroup in groupedRooms)
+            {
+                var roomId = roomGroup.Key;
+
+                // Вычисляем сумму Qbase для текущей группы
+                var totalQbase = roomGroup.Sum(wall => wall.Qbasis);
+
+                var selectedwall = roomGroup.Take(1).First();
+                selectedwall.Qtot = totalQbase;
+
+            }
+
+
+                string a = "ElementId;Имя комнаты;Длина;Площадь;Твнутри;Тснаружи;Qтеплопотери;Qcумм" + "\n";
+                foreach (var o in outsideWalls)
+                {
+                    o.Qbasis = o.Koeffizient * (o.TempInside - o.TempOutside) * o.Flache * o.Beta3;
+                    a += $"{o.ElementId};{o.RoomName};{o.Length};{o.Flache};{o.TempInside};{o.TempOutside};{o.Qbasis};{o.Qtot}\n";
+                }
+
+                SaveFile(a);
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+        
+
+        
+        public void SaveFile(string content) // спрятали функцию сохранения 
+        {
+            System.Windows.Forms.SaveFileDialog saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+            saveFileDialog.Filter = "CSV files (*.csv)|*.csv";
+            saveFileDialog.Title = "Save CSV File";
+            //saveFileDialog.FileName = Collection.First().Elements.First().SystemName + ".csv";
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+
+                    using (StreamWriter writer = new StreamWriter(saveFileDialog.FileName))
+                    {
+                        writer.Write(content);
+                    }
+
+                    Console.WriteLine("CSV file saved successfully.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error saving CSV file: " + ex.Message);
+                }
+            }
         }
 
         private ObservableCollection<City> preparedCity { get; set; } = new ObservableCollection<City>();

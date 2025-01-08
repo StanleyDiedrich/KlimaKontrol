@@ -1,4 +1,5 @@
 ﻿using Autodesk.Revit.DB;
+using Autodesk.Revit.DB.Visual;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,12 +25,12 @@ namespace KlimaKontrol
         public double Height { get; set; }
         public double Koeffizient { get; set; }
         public double Resistance { get; set; }
-
+        public double Length { get; set; }
         public double N_Koef { get; set; } = 1;
         public double TempOutside { get; set; }
         public double TempInside { get; set; }
         public bool IsOutside {  get; set; }
-        public List<Element> HostedElements { get; set; } = new List<Element>();
+        public IList<ElementId> HostedElements { get; set; } = new List<ElementId>();
         public double Beta1 { get; set; }
         public double Beta2 { get; set; }
         public double Beta3 { get; set; } = 1;
@@ -46,11 +47,12 @@ namespace KlimaKontrol
 
         public Abbreviation WallAbbreviation { get; set; }
 
-        public CustomWall ( Document doc, ElementId elementId, ElementId roomId)
+        public CustomWall ( Document doc, ElementId elementId, ElementId roomId, double length, City preparedCity,double insideTemp)
         {
+            
             ElementId = elementId;
             Element = doc.GetElement(ElementId);
-            
+            Koeffizient = 1;
             Name = Element.Name;
             Level = Element.LevelId;
             LvlName = doc.GetElement(Level).Name;
@@ -58,10 +60,46 @@ namespace KlimaKontrol
             RoomName = doc.GetElement(RoomId).Name;
             RoomNumber = (doc.GetElement(RoomId) as SpatialElement).Number;
             FacialOrientation = (Element as Wall).Orientation;
-            //Orientation = GetOrientation(FacialOrientation);
-            //Flache = Convert.ToDouble(Element.get_Parameter(BuiltInParameter.HOST_AREA_COMPUTED).AsValueString().Replace(",","."));
+            Length = length; //* 304.8;
+            Flache = Convert.ToDouble(Element.get_Parameter(BuiltInParameter.HOST_AREA_COMPUTED).AsValueString());
             Width = Convert.ToDouble(Element.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH).AsValueString());
             Height = Convert.ToDouble(Element.get_Parameter(BuiltInParameter.WALL_USER_HEIGHT_PARAM).AsValueString());
+            Beta3 = 1.3;
+            Qtot = 0;
+            TempInside = insideTemp;
+            HostedElements = (Element as HostObject).FindInserts(true,false,false,true);
+            List<Element> doors = new List<Element>();
+            List<Element> windows = new List<Element>();
+            List<Element> helements = new List<Element>();
+            foreach (var hostElement  in HostedElements)
+            {
+                if (doc.GetElement(hostElement) is FamilyInstance)
+                {
+                    helements.Add(doc.GetElement(hostElement));   
+                }
+            }
+            foreach (var helement in helements)
+            {
+                if (helement.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Windows)
+                {
+                    windows.Add(helement);
+                }
+                else if (helement.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Doors)
+                {
+                    doors.Add(helement);
+                }
+
+            }
+            foreach (var window in windows)
+            {
+                if ((window as FamilyInstance).FromRoom == null || (window as FamilyInstance).ToRoom == null)
+                {
+                    TempOutside = preparedCity.Min5Day_092;
+                }
+
+            }
+            
+            Qbasis =1.3*Koeffizient*Flache*(TempInside-TempOutside);
             /*Koeffizient = koeffizient;
             Resistance = resistance;
             N_Koef = n_Koef;
@@ -71,18 +109,15 @@ namespace KlimaKontrol
             HostedElements = hostedElements;
             Beta1 = beta1;
             Beta2 = beta2;
-            Beta3 = beta3;
+            
             Qbasis = qbasis;
             Qtransm = qtransm;
             Qinf = qinf;
             Qvent = qvent;
-            Qtot = qtot;
+           
             WallAbbreviation = myAbbreviation;*/
         }
 
-        private string GetOrientation(XYZ facialOrientation)
-        {
-            throw new NotImplementedException();
-        }
+       
     }
 }
