@@ -223,7 +223,10 @@
     <Compile Include="AppDbContext.cs" />
     <Compile Include="Areas.cs" />
     <Compile Include="Cities.cs" />
+    <Compile Include="CustomDoors.cs" />
+    <Compile Include="CustomRoom.cs" />
     <Compile Include="CustomWall.cs" />
+    <Compile Include="CustomWindow.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="MainViewModel.cs" />
     <Compile Include="PreparedCity.cs" />

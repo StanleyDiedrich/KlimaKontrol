@@ -1,4 +1,5 @@
 ﻿using Autodesk.Revit.DB;
+using Autodesk.Revit.DB.Architecture;
 using Autodesk.Revit.DB.Visual;
 using System;
 using System.Collections.Generic;
@@ -39,6 +40,7 @@ namespace KlimaKontrol
         public double Qinf { get; set; }
         public double Qvent { get; set; }
         public double Qtot { get; set; }
+        public BoundarySegment BoundarySegment { get; set; }
         public enum Abbreviation
         {
             НС,
@@ -47,9 +49,9 @@ namespace KlimaKontrol
 
         public Abbreviation WallAbbreviation { get; set; }
 
-        public CustomWall ( Document doc, ElementId elementId, ElementId roomId, double length, City preparedCity,double insideTemp)
+        public CustomWall ( Document doc, ElementId elementId, ElementId roomId, City preparedCity, BoundarySegment boundary ,double insideTemp)
         {
-            
+           
             ElementId = elementId;
             Element = doc.GetElement(ElementId);
             Koeffizient = 1;
@@ -60,7 +62,7 @@ namespace KlimaKontrol
             RoomName = doc.GetElement(RoomId).Name;
             RoomNumber = (doc.GetElement(RoomId) as SpatialElement).Number;
             FacialOrientation = (Element as Wall).Orientation;
-            Length = length; //* 304.8;
+            Length = boundary.GetCurve().Length; //* 304.8;
             Flache = Convert.ToDouble(Element.get_Parameter(BuiltInParameter.HOST_AREA_COMPUTED).AsValueString());
             Width = Convert.ToDouble(Element.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH).AsValueString());
             Height = Convert.ToDouble(Element.get_Parameter(BuiltInParameter.WALL_USER_HEIGHT_PARAM).AsValueString());
