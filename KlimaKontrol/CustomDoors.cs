@@ -29,23 +29,25 @@ namespace KlimaKontrol
         public double Qbasis { get; set; }
         
 
-        public CustomDoors (Document doc, Element helement, ElementId helementId, ElementId roomId, City preparedCity, double insideTemp)
+        public CustomDoors (Document doc, Element helement, ElementId helementId,  City preparedCity, double insideTemp)
         {
             Document = doc;
             Name = helement.Name;
             WindowId = helementId;
             WindowElement = helement;
-            RoomId = roomId;
+            //RoomId = roomId;
             City = preparedCity;
             try
             {
                // RoomId = (WindowElement as FamilyInstance).ToRoom.Id;
                 RoomTo = (WindowElement as FamilyInstance).ToRoom.Id;
+                RoomId = RoomTo;
             }
             catch
             {
                // RoomId = (WindowElement as FamilyInstance).FromRoom.Id;
                 RoomFrom = (WindowElement as FamilyInstance).FromRoom.Id;
+                RoomId = RoomFrom;
             }
 
             if (RoomFrom == null || RoomTo == null)

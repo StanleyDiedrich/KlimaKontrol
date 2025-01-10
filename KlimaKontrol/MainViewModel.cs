@@ -260,14 +260,7 @@ namespace KlimaKontrol
 
                             for (int l = 0; l < customrooms[j].Doors.Count; l++)
                             {
-                                if (viewedWalls.Contains(customrooms[j].Doors[l].RoomId))
-                                {
-                                    continue; // Пропустить уже просмотренные стены
-                                }
-                                if (customrooms[i].Doors[k].Name.Contains("НС"))
-                                {
-                                    customrooms[i].Doors[k].TempOutside = SelectedCity.Min5Day_092;
-                                }
+                                
 
                                 if (customrooms[i].Doors[k].WindowId == customrooms[j].Doors[l].WindowId)
                                 {
@@ -283,13 +276,13 @@ namespace KlimaKontrol
                     }
 
                 }
-                customrooms[i].WallCalculation();
-                customrooms[i].WindowCalculation();
-                customrooms[i].DoorCalculation();
-                customrooms[i].RoomCalculation();
+                
             }
-
-
+            /*customrooms[i].WallCalculation();
+            customrooms[i].WindowCalculation();
+            customrooms[i].DoorCalculation();
+            customrooms[i].RoomCalculation();*/
+            RoomCalculation(customrooms);
 
 
 
@@ -316,6 +309,47 @@ namespace KlimaKontrol
             SaveFile(a);
 
 
+        }
+
+
+        public static double RoomCalculation(List<CustomRoom> customRooms)
+        {
+            var customGroups = customRooms.GroupBy(r => r.Name);
+
+            foreach (var customRoomsGroup in customGroups)
+            {
+                double totalQ = 0; // Переменная для хранения общего значения Q
+
+                foreach (var customRoom in customRoomsGroup)
+                {
+                    double res = 0;
+
+                    foreach (var wall in customRoom.Walls)
+                    {
+                        wall.Qbasis = 1.3 * wall.Koeffizient * wall.Flache * (wall.TempInside - wall.TempOutside);
+                        res += wall.Qbasis;
+                    }
+
+                    foreach (var window in customRoom.Windows)
+                    {
+                        window.Qbasis = 1.3 * window.Koeffizient * window.Flache * (window.TempInside - window.TempOutside);
+                        res += window.Qbasis;
+                    }
+
+                    foreach (var door in customRoom.Doors)
+                    {
+                        door.Qbasis = 1.3 * door.Koeffizient * door.Flache * (door.TempInside - door.TempOutside);
+                        res += door.Qbasis;
+                    }
+
+                    customRoom.Qtot = res; // Сохраняем результат в текущей комнате
+                    totalQ += res; // Добавляем к общему значению
+                }
+                customRoomsGroup.First().Qtot = totalQ;
+                // Вы можете использовать totalQ здесь, если это необходимо для дальнейших расчетов
+            }
+
+            return 0; // Возвращаем общее значение Q
         }
 
         /*public double WallCalculation (CustomWall wall)

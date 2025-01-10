@@ -64,10 +64,12 @@ namespace KlimaKontrol
             RoomName = doc.GetElement(RoomId).Name;
             RoomNumber = (doc.GetElement(RoomId) as SpatialElement).Number;
             FacialOrientation = (Element as Wall).Orientation;
-            Length = boundary.GetCurve().Length; //* 304.8;
-            Flache = Convert.ToDouble(Element.get_Parameter(BuiltInParameter.HOST_AREA_COMPUTED).AsValueString());
+            Length = boundary.GetCurve().Length*304.8/1000; //* 304.8;
+            
             Width = Convert.ToDouble(Element.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH).AsValueString());
-            Height = Convert.ToDouble(Element.get_Parameter(BuiltInParameter.WALL_USER_HEIGHT_PARAM).AsValueString());
+            Height = Convert.ToDouble(Element.get_Parameter(BuiltInParameter.WALL_USER_HEIGHT_PARAM).AsValueString())/1000;
+            //Flache = Convert.ToDouble(Element.get_Parameter(BuiltInParameter.HOST_AREA_COMPUTED).AsValueString());
+            Flache = Length * Height;
             Beta3 = 1.3;
             Qtot = 0;
             TempInside = insideTemp;
@@ -87,12 +89,28 @@ namespace KlimaKontrol
                 if (helement.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Windows)
                 { 
                     CustomWindow customWindow = new CustomWindow(doc, helement, helement.Id, preparedCity,insideTemp);
-                    Windows.Add(customWindow);
+                    if (customWindow.RoomId!=RoomId)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        Windows.Add(customWindow);
+                    }
+                   
                 }
                 else if (helement.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Doors)
                 {
-                    CustomDoors customDoor = new CustomDoors(doc, helement, helement.Id,RoomId,  preparedCity, insideTemp);
-                    Doors.Add(customDoor);
+                    CustomDoors customDoor = new CustomDoors(doc, helement, helement.Id,  preparedCity, insideTemp);
+                    if(customDoor.RoomId!=RoomId) 
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        Doors.Add(customDoor);
+                    }
+                   
                 }
 
             }
