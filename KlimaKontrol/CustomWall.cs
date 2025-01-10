@@ -32,6 +32,8 @@ namespace KlimaKontrol
         public double TempInside { get; set; }
         public bool IsOutside {  get; set; }
         public IList<ElementId> HostedElements { get; set; } = new List<ElementId>();
+        public List<CustomWindow> Windows { get; set; } = new List<CustomWindow>();
+        public List<CustomDoors> Doors { get; set; } = new List<CustomDoors>();
         public double Beta1 { get; set; }
         public double Beta2 { get; set; }
         public double Beta3 { get; set; } = 1;
@@ -83,25 +85,27 @@ namespace KlimaKontrol
             foreach (var helement in helements)
             {
                 if (helement.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Windows)
-                {
-                    windows.Add(helement);
+                { 
+                    CustomWindow customWindow = new CustomWindow(doc, helement, helement.Id, preparedCity,insideTemp);
+                    Windows.Add(customWindow);
                 }
                 else if (helement.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Doors)
                 {
-                    doors.Add(helement);
+                    CustomDoors customDoor = new CustomDoors(doc, helement, helement.Id,RoomId,  preparedCity, insideTemp);
+                    Doors.Add(customDoor);
                 }
 
             }
-            foreach (var window in windows)
+            /*foreach (var window in windows)
             {
                 if ((window as FamilyInstance).FromRoom == null || (window as FamilyInstance).ToRoom == null)
                 {
                     TempOutside = preparedCity.Min5Day_092;
                 }
 
-            }
+            }*/
             
-            Qbasis =1.3*Koeffizient*Flache*(TempInside-TempOutside);
+            //Qbasis =1.3*Koeffizient*Flache*(TempInside-TempOutside);
             /*Koeffizient = koeffizient;
             Resistance = resistance;
             N_Koef = n_Koef;

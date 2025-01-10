@@ -21,7 +21,7 @@ namespace KlimaKontrol
         public List<CustomWindow> Windows { get; set; } = new List<CustomWindow>();
 
         public List<CustomDoors> Doors { get; set; } = new List<CustomDoors>();
-
+        public double Qtot { get; set; }
        
         public CustomRoom(Document document, Element room, City sCity)
         {
@@ -65,7 +65,7 @@ namespace KlimaKontrol
             SpatialElementBoundaryOptions options = new SpatialElementBoundaryOptions();
             var spatialElements = (RoomElement as SpatialElement).GetBoundarySegments(options);
             List<SpatialElement> boundaries = new List<SpatialElement>();
-
+           
             foreach (var spatialElement in spatialElements)
             {
                 foreach (var boundary in spatialElement)
@@ -79,6 +79,8 @@ namespace KlimaKontrol
                             if (RoomId !=null)
                             {
                                 CustomWall customWall = new CustomWall(Document, wallId, RoomId, SCity, boundary, TempIn);
+                                Windows = customWall.Windows;
+                                Doors = customWall.Doors;
                                 Walls.Add(customWall);
                             }
                             
@@ -86,6 +88,65 @@ namespace KlimaKontrol
                     }
                 }
             }
+
+
+
+
+        }
+
+
+        public double WallCalculation()
+        {
+            double res = 0;
+            foreach (var wall in Walls )
+            {
+                res = 1.3 * wall.Koeffizient * wall.Flache * (wall.TempInside - wall.TempOutside);
+                wall.Qbasis = res;
+            }
+            return res;
+        }
+        public double WindowCalculation()
+        {
+            double res = 0;
+            foreach (var window in Windows)
+            {
+                res = 1.3*window.Koeffizient*window.Flache*(window.TempInside - window.TempOutside);
+                window.Qbasis = res;
+            }
+
+            return res;
+        }
+        public double DoorCalculation ()
+        {
+            double res = 0;
+            foreach (var door in Doors)
+            {
+                res =1.3*door.Koeffizient*door.Flache *(door.TempInside - door.TempOutside);
+                door.Qbasis = res;
+            }
+            return res;
+        }
+
+        public double RoomCalculation()
+        {
+            double result = 0;
+            
+            foreach (var wall in Walls)
+            {
+                result += wall.Qbasis;
+
+            }
+            foreach (var window in Windows)
+            {
+                result += window.Qbasis;
+            }
+            foreach (var door in Doors)
+            {
+                result += door.Qbasis;
+            }
+            Qtot = result;
+
+            return Qtot;
         }
     }
 }

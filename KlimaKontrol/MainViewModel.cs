@@ -13,6 +13,7 @@ using Autodesk.Revit.UI;
 using Autodesk.Revit.Creation;
 using OfficeOpenXml.Drawing.Chart;
 using System.IO;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace KlimaKontrol
 {
@@ -187,6 +188,8 @@ namespace KlimaKontrol
                 CustomRoom customroom = new CustomRoom(activedocument, room, SelectedCity);
                 customrooms.Add(customroom);
             }
+            HashSet<ElementId> viewedWalls = new HashSet<ElementId>();
+
             for (int i = 0; i < customrooms.Count; i++)
             {
                 for (int j = 0; j < customrooms.Count; j++)
@@ -199,29 +202,111 @@ namespace KlimaKontrol
                     {
                         for (int k = 0; k < customrooms[i].Walls.Count; k++)
                         {
+                            // Проверка, была ли стена уже просмотрена
+                            if (viewedWalls.Contains(customrooms[i].Walls[k].ElementId))
+                            {
+                                continue; // Пропустить уже просмотренные стены
+                            }
+
                             for (int l = 0; l < customrooms[j].Walls.Count; l++)
                             {
-                                if (customrooms[i].Walls[k].Name.Contains("НС") )
+                                if (viewedWalls.Contains(customrooms[j].Walls[l].RoomId))
+                                {
+                                    continue; // Пропустить уже просмотренные стены
+                                }
+                                if (customrooms[i].Walls[k].Name.Contains("НС"))
                                 {
                                     customrooms[i].Walls[k].TempOutside = SelectedCity.Min5Day_092;
-                                   
                                 }
+
                                 if (customrooms[i].Walls[k].ElementId == customrooms[j].Walls[l].ElementId)
                                 {
                                     customrooms[i].Walls[k].TempOutside = customrooms[j].Walls[l].TempInside;
                                 }
+
+                               /* customrooms[i].Walls[k].Qbasis = WallCalculation(customrooms[i].Walls[k]);*/
+                                
                             }
+
+                          
                         }
                     }
+                  
                 }
+                //customrooms[i].WallCalculation();
+                //customrooms[i].WindowCalculation();
+                //customrooms[i].DoorCalculation();
+                //customrooms[i].RoomCalculation();
             }
 
-            string a = "ElementId;Имя комнаты;Длина;Площадь;Твнутри;Тснаружи;Qтеплопотери" + "\n";
+
+            for (int i = 0; i < customrooms.Count; i++)
+            {
+                for (int j = 0; j < customrooms.Count; j++)
+                {
+                    if (i == j)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        for (int k = 0; k < customrooms[i].Doors.Count; k++)
+                        {
+                            // Проверка, была ли стена уже просмотрена
+                            /*if (viewedWalls.Contains(customrooms[i].Doors[k].ElementId))
+                            {
+                                continue; // Пропустить уже просмотренные стены
+                            }*/
+
+                            for (int l = 0; l < customrooms[j].Doors.Count; l++)
+                            {
+                                if (viewedWalls.Contains(customrooms[j].Doors[l].RoomId))
+                                {
+                                    continue; // Пропустить уже просмотренные стены
+                                }
+                                if (customrooms[i].Doors[k].Name.Contains("НС"))
+                                {
+                                    customrooms[i].Doors[k].TempOutside = SelectedCity.Min5Day_092;
+                                }
+
+                                if (customrooms[i].Doors[k].WindowId == customrooms[j].Doors[l].WindowId)
+                                {
+                                    customrooms[i].Doors[k].TempOutside = customrooms[j].Doors[l].TempInside;
+                                }
+
+                                /* customrooms[i].Walls[k].Qbasis = WallCalculation(customrooms[i].Walls[k]);*/
+
+                            }
+
+
+                        }
+                    }
+
+                }
+                customrooms[i].WallCalculation();
+                customrooms[i].WindowCalculation();
+                customrooms[i].DoorCalculation();
+                customrooms[i].RoomCalculation();
+            }
+
+
+
+
+
+            string a = "ElementId;Имя семейства;Имя комнаты;Id комнаты;Длина;Площадь;Твнутри;Тснаружи;Qтеплопотери;Qобщ" + "\n";
             foreach (var room in customrooms)
             {
                 foreach (var wall in room.Walls)
                 {
-                    a += $"{wall.ElementId};{room.Name};{wall.Length};{wall.Flache};{wall.TempInside};{wall.TempOutside};{wall.Qbasis}\n";
+                    a += $"{wall.ElementId};{wall.Name};{room.Name};{room.RoomId};{wall.Length};{wall.Flache};{wall.TempInside};{wall.TempOutside};{wall.Qbasis};{room.Qtot}\n";
+                }
+                foreach (var window in room.Windows)
+                {
+                    a += $"{window.WindowId};{window.Name};{window.RoomName};{room.RoomId};{window.Width};{window.Flache};{window.TempInside};{window.TempOutside};{window.Qbasis};{room.Qtot}\n";
+                }
+                foreach (var door in room.Doors)
+                {
+                    a += $"{door.WindowId};{door.Name};{door.RoomName};{room.RoomId};{door.Width};{door.Flache};{door.TempInside};{door.TempOutside};{door.Qbasis};{room.Qtot}\n";
                 }
 
                 /*o.Qbasis = o.Koeffizient * (o.TempInside - o.TempOutside) * o.Flache * o.Beta3;
@@ -233,7 +318,51 @@ namespace KlimaKontrol
 
         }
 
+        /*public double WallCalculation (CustomWall wall)
+        {
+            double res = 0;
+             res = 1.3 * wall.Koeffizient * wall.Flache * (wall.TempInside - wall.TempOutside);
 
+            return res;
+        }
+        public double WindowCalculation(CustomRoom room)
+        {
+            foreach (var window in room.Windows )
+            {
+                double res = 0;
+                res = 1.3 * window.Koeffizient * window.Flache * (window.TempInside - window.TempOutside);
+                return res;
+            }
+
+            return 0;
+           
+        }
+        
+
+        public double RoomCalculation(CustomRoom customRoom)
+        {
+            double res = 0;
+
+            foreach (var wall in customRoom.Walls)
+            {
+                res += wall.Qbasis;
+
+            }
+            foreach (var window in customRoom.Windows)
+            {
+                  
+               res += window.Qbasis;
+                
+            }
+
+            foreach (var door in customRoom.Doors)
+            {
+                res += door.Qbasis;
+            }
+
+
+            return res; 
+        }*/
 
 
 
