@@ -27,14 +27,17 @@ namespace KlimaKontrol
         public double TempInside { get; set; }
         public double TempOutside { get; set; }
         public double Qbasis { get; set; }
-        
+        public double KDoor { get; set; }
+        public double KGDoor { get; set; }
 
-        public CustomDoors (Document doc, Element helement, ElementId helementId,  City preparedCity, double insideTemp)
+        public CustomDoors (Document doc, Element helement, ElementId helementId,  City preparedCity, double insideTemp, double kDoor, double kGDoor)
         {
             Document = doc;
             Name = helement.Name;
             WindowId = helementId;
             WindowElement = helement;
+            KDoor = kDoor;
+            KGDoor = kGDoor;
             //RoomId = roomId;
             City = preparedCity;
             try
@@ -54,8 +57,11 @@ namespace KlimaKontrol
             {
                 TempOutside = City.Min5Day_092;
             }
-           
-
+            if (WindowElement.LookupParameter("ADSK_Группирование").AsValueString()=="Ворота")
+            {
+                Koeffizient = KGDoor;
+            }
+            
             RoomName = doc.GetElement(RoomId).Name;
             City = preparedCity;
             TempInside = insideTemp;

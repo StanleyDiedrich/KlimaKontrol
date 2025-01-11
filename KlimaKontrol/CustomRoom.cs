@@ -17,13 +17,18 @@ namespace KlimaKontrol
         public string RoomType { get; set; }
         public double TempIn { get; set; }
         public double TempOut { get; set; }
+
+        public double KOuterWall { get; set; }
+        public double KWindow { get; set; }
+        public double KDoor { get; set; }
+        public double KGDoor { get; set; }
         public List<CustomWall> Walls { get; set; } = new List<CustomWall>();
         public List<CustomWindow> Windows { get; set; } = new List<CustomWindow>();
 
         public List<CustomDoors> Doors { get; set; } = new List<CustomDoors>();
         public double Qtot { get; set; }
        
-        public CustomRoom(Document document, Element room, City sCity)
+        public CustomRoom(Document document, Element room, City sCity, double koeffizientDoor,double koeffizientGarageDoor,double koeffizientOuterWall, double koeffizientWindow)
         {
             Document = document;
             RoomElement = room;
@@ -31,6 +36,11 @@ namespace KlimaKontrol
             Name = room.Name;
             SCity = sCity;
             TempOut = SCity.Min5Day_092;
+            KOuterWall = koeffizientOuterWall;
+            KWindow = koeffizientWindow;
+            KDoor = koeffizientDoor;
+            KGDoor = koeffizientGarageDoor;
+
             string roomtype = room.LookupParameter("ADSK_Тип квартиры").AsString();
             RoomType = roomtype;
             if (roomtype == "Кухня")
@@ -78,7 +88,7 @@ namespace KlimaKontrol
                             //Document doc, ElementId elementId, ElementId roomId, City preparedCity, BoundarySegment boundary,double insideTemp
                             if (RoomId !=null)
                             {
-                                CustomWall customWall = new CustomWall(Document, wallId, RoomId, SCity, boundary, TempIn);
+                                CustomWall customWall = new CustomWall(Document, wallId, RoomId, SCity, boundary, TempIn, KOuterWall, KWindow,KDoor,KGDoor);
                                 Windows = customWall.Windows;
                                 Doors = customWall.Doors;
                                 Walls.Add(customWall);

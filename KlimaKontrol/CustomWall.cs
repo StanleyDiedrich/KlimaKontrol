@@ -50,13 +50,16 @@ namespace KlimaKontrol
         }
 
         public Abbreviation WallAbbreviation { get; set; }
-
-        public CustomWall ( Document doc, ElementId elementId, ElementId roomId, City preparedCity, BoundarySegment boundary ,double insideTemp)
+        public double KOuterWall { get; set; }
+        public double KWindow { get; set; }
+        public double KDoor { get; set; }
+        public double KGDoor { get; set; }
+        public CustomWall ( Document doc, ElementId elementId, ElementId roomId, City preparedCity, BoundarySegment boundary ,double insideTemp, double kOuterWall,double kWindow, double kDoor, double kGDoor)
         {
            
             ElementId = elementId;
             Element = doc.GetElement(ElementId);
-            Koeffizient = 1;
+            Koeffizient = 2.1;
             Name = Element.Name;
             Level = Element.LevelId;
             LvlName = doc.GetElement(Level).Name;
@@ -74,6 +77,10 @@ namespace KlimaKontrol
             Qtot = 0;
             TempInside = insideTemp;
             HostedElements = (Element as HostObject).FindInserts(true,false,false,true);
+            KOuterWall = kOuterWall;
+            KWindow = kWindow;
+            KDoor = kDoor;
+            KGDoor = kGDoor;
             List<Element> doors = new List<Element>();
             List<Element> windows = new List<Element>();
             List<Element> helements = new List<Element>();
@@ -88,7 +95,7 @@ namespace KlimaKontrol
             {
                 if (helement.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Windows)
                 { 
-                    CustomWindow customWindow = new CustomWindow(doc, helement, helement.Id, preparedCity,insideTemp);
+                    CustomWindow customWindow = new CustomWindow(doc, helement, helement.Id, preparedCity,insideTemp, KWindow);
                     if (customWindow.RoomId!=RoomId)
                     {
                         continue;
@@ -101,7 +108,7 @@ namespace KlimaKontrol
                 }
                 else if (helement.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Doors)
                 {
-                    CustomDoors customDoor = new CustomDoors(doc, helement, helement.Id,  preparedCity, insideTemp);
+                    CustomDoors customDoor = new CustomDoors(doc, helement, helement.Id,  preparedCity, insideTemp, KDoor,KGDoor);
                     if(customDoor.RoomId!=RoomId) 
                     {
                         continue;

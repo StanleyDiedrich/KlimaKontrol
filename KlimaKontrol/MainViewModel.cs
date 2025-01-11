@@ -136,6 +136,50 @@ namespace KlimaKontrol
                 OnPropertyChanged(nameof(Underground));
             }
         }
+        private double koeffizientOuterWall { get; set; }
+        public double KoeffizientOuterWall
+        {
+            get { return koeffizientOuterWall; }
+            set
+            {
+                koeffizientOuterWall = value;
+                OnPropertyChanged(nameof(KoeffizientOuterWall));
+            }
+        }
+
+        private double koeffizientWindow { get; set; }
+        public double KoeffizientWindow
+        {
+            get { return koeffizientWindow; }
+            set
+            {
+                koeffizientWindow = value;
+                OnPropertyChanged(nameof(KoeffizientWindow));
+            }
+        }
+        private double koeffizientDoor { get; set; }
+        public double KoeffizientOuterDoor
+        {
+            get { return koeffizientDoor; }
+            set
+            {
+                koeffizientDoor = value;
+                OnPropertyChanged(nameof(KoeffizientOuterDoor));
+            }
+        }
+
+        private double koeffizientGarageDoor { get; set; }
+        public double KoeffizientGarageDoor
+        {
+            get { return koeffizientGarageDoor; }
+            set
+            {
+                koeffizientGarageDoor = value;
+                OnPropertyChanged(nameof(KoeffizientGarageDoor));
+            }
+        }
+
+
 
         private SettingsViewModel settingsViewModel;
         public SettingsViewModel SettingsViewModel
@@ -172,6 +216,8 @@ namespace KlimaKontrol
             }
         }
 
+      
+
         [Obsolete]
         private void CollectAllRooms(Autodesk.Revit.DB.Document document, Element selectedLink, City preparedCity)
         {
@@ -185,7 +231,7 @@ namespace KlimaKontrol
             foreach (var room in selectedRooms)
             {
                 
-                CustomRoom customroom = new CustomRoom(activedocument, room, SelectedCity);
+                CustomRoom customroom = new CustomRoom(activedocument, room, SelectedCity,KoeffizientOuterDoor,KoeffizientGarageDoor,KoeffizientOuterWall,KoeffizientWindow);
                 customrooms.Add(customroom);
             }
             HashSet<ElementId> viewedWalls = new HashSet<ElementId>();
@@ -217,11 +263,13 @@ namespace KlimaKontrol
                                 if (customrooms[i].Walls[k].Name.Contains("НС"))
                                 {
                                     customrooms[i].Walls[k].TempOutside = SelectedCity.Min5Day_092;
+                                    customrooms[i].Walls[k].Koeffizient = customrooms[i].Walls[k].KOuterWall;
                                 }
 
                                 if (customrooms[i].Walls[k].ElementId == customrooms[j].Walls[l].ElementId)
                                 {
                                     customrooms[i].Walls[k].TempOutside = customrooms[j].Walls[l].TempInside;
+                                    customrooms[i].Walls[k].Koeffizient = 2.1;
                                 }
 
                                /* customrooms[i].Walls[k].Qbasis = WallCalculation(customrooms[i].Walls[k]);*/
@@ -233,6 +281,7 @@ namespace KlimaKontrol
                     }
                   
                 }
+                
                 //customrooms[i].WallCalculation();
                 //customrooms[i].WindowCalculation();
                 //customrooms[i].DoorCalculation();
@@ -286,20 +335,20 @@ namespace KlimaKontrol
 
 
 
-            string a = "ElementId;Имя семейства;Имя комнаты;Id комнаты;Длина;Площадь;Твнутри;Тснаружи;Qтеплопотери;Qобщ" + "\n";
+            string a = "ElementId;Имя семейства;Имя комнаты;Id комнаты;Длина;Площадь;Твнутри;Тснаружи;К,м2/С*Вт;Qтеплопотери;Qобщ" + "\n";
             foreach (var room in customrooms)
             {
                 foreach (var wall in room.Walls)
                 {
-                    a += $"{wall.ElementId};{wall.Name};{room.Name};{room.RoomId};{wall.Length};{wall.Flache};{wall.TempInside};{wall.TempOutside};{wall.Qbasis};{room.Qtot}\n";
+                    a += $"{wall.ElementId};{wall.Name};{room.Name};{room.RoomId};{wall.Length};{wall.Flache};{wall.TempInside};{wall.TempOutside};{wall.Koeffizient};{wall.Qbasis};{room.Qtot}\n";
                 }
                 foreach (var window in room.Windows)
                 {
-                    a += $"{window.WindowId};{window.Name};{window.RoomName};{room.RoomId};{window.Width};{window.Flache};{window.TempInside};{window.TempOutside};{window.Qbasis};{room.Qtot}\n";
+                    a += $"{window.WindowId};{window.Name};{window.RoomName};{room.RoomId};{window.Width};{window.Flache};{window.TempInside};{window.TempOutside};{window.Koeffizient};{window.Qbasis};{room.Qtot}\n";
                 }
                 foreach (var door in room.Doors)
                 {
-                    a += $"{door.WindowId};{door.Name};{door.RoomName};{room.RoomId};{door.Width};{door.Flache};{door.TempInside};{door.TempOutside};{door.Qbasis};{room.Qtot}\n";
+                    a += $"{door.WindowId};{door.Name};{door.RoomName};{room.RoomId};{door.Width};{door.Flache};{door.TempInside};{door.TempOutside};{door.Koeffizient};{door.Qbasis};{room.Qtot}\n";
                 }
 
                 /*o.Qbasis = o.Koeffizient * (o.TempInside - o.TempOutside) * o.Flache * o.Beta3;

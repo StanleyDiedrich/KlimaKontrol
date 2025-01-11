@@ -17,6 +17,7 @@ namespace KlimaKontrol
         public ElementId Level { get; set; }
         public string LvlName { get; set; }
         public double Koeffizient { get; set; } = 1;
+        public double KWindow { get; set; }
         public double Resistance { get; set; }
         public double Flache { get; set; }
         public double Width { get; set; }
@@ -27,7 +28,7 @@ namespace KlimaKontrol
         public double Qbasis { get; set; }
        
 
-        public CustomWindow (Document doc, Element helement, ElementId helementId,  City preparedCity, double insideTemp)
+        public CustomWindow (Document doc, Element helement, ElementId helementId,  City preparedCity, double insideTemp, double kWindow)
         {
             Document = doc;
             Name = helement.Name;
@@ -40,13 +41,13 @@ namespace KlimaKontrol
             catch
             {
                 RoomId = (WindowElement as FamilyInstance).FromRoom.Id;
-            }
+           }
             
             RoomName = doc.GetElement(RoomId).Name;
             City = preparedCity;
             TempInside = insideTemp;
             TempOutside = City.Min5Day_092;
-
+            Koeffizient = kWindow;
            
 
             Width = Convert.ToDouble((WindowElement as FamilyInstance).LookupParameter("Облицовка_высота").AsValueString()) / 1000;

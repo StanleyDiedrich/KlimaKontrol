@@ -13,8 +13,12 @@
             <RowDefinition></RowDefinition>
             <RowDefinition Height="0.25*"></RowDefinition>
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
         <Label HorizontalAlignment="Center" Content="Климатические параметры"></Label>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,30,10">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,10"  Grid.Column="1">
 
             <Button Content="Настройки" Height="30" Width="100" HorizontalAlignment="Right" Background="#5B9BD5" Foreground="White" Command="{Binding SettingsCommand}" ></Button>
         </StackPanel>
@@ -72,6 +76,18 @@
                 <TextBox x:Name="DepthInputBox" Width="400" Margin="5" 
              Text="{Binding Underground}"/>
         </StackPanel>
+        </ScrollViewer>
+        <ScrollViewer Grid.Row="1" Grid.Column="1">
+            <StackPanel>
+                <Label Content="K фактическое стены наружной"></Label>
+                <TextBox Text="{Binding KoeffizientOuterWall}"></TextBox>
+                <Label Content="K фактическое окна"></Label>
+                <TextBox Text="{Binding KoeffizientWindow}"></TextBox>
+                <Label Content="K фактическое дверь"></Label>
+                <TextBox Text="{Binding KoeffizientOuterDoor}"></TextBox>    
+                <Label Content="K фактическое ворота"></Label>
+                <TextBox Text="{Binding KoeffizientGarageDoor}"></TextBox>
+            </StackPanel>
         </ScrollViewer>
            
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
