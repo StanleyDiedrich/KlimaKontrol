@@ -17,12 +17,23 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace KlimaKontrol
 {
+
     public class MainViewModel : INotifyPropertyChanged
     {
         private Autodesk.Revit.DB.Document document;
+
+        private UserControl1 window;
+
+        private SettingsControl settings;
+
+        private SettingsViewModel settingsViewModel;
+
         public Autodesk.Revit.DB.Document Document
         {
-            get { return document; }
+            get
+            {
+                return document;
+            }
             set
             {
                 document = value;
@@ -30,17 +41,19 @@ namespace KlimaKontrol
             }
         }
 
-        private UserControl1 window;
         public UserControl1 Window
         {
-            get { return window; }
+            get
+            {
+                return window;
+            }
             set
             {
                 window = value;
                 OnPropertyChanged("Window");
             }
         }
-        private SettingsControl settings;
+
         public SettingsControl SettingsCntrl
         {
             get
@@ -60,454 +73,206 @@ namespace KlimaKontrol
 
         public ObservableCollection<City> Cities { get; private set; } = new ObservableCollection<City>();
 
-
-
-       
         private string filePath { get; set; }
+
         public string FilePath
         {
-            get { return filePath; }
+            get
+            {
+                return filePath;
+            }
             set
             {
                 filePath = value;
-                OnPropertyChanged(nameof(FilePath));
+                OnPropertyChanged("FilePath");
             }
         }
+
         private ObservableCollection<PreparedCity> selectedCities { get; set; }
+
         public ObservableCollection<PreparedCity> SelectedCities
         {
-            get { return selectedCities; }
+            get
+            {
+                return selectedCities;
+            }
             set
             {
                 selectedCities = value;
-                OnPropertyChanged(nameof(SelectedCities));
+                OnPropertyChanged("SelectedCities");
             }
         }
 
         private ObservableCollection<Areas> areas { get; set; }
+
         public ObservableCollection<Areas> Areas
         {
-            get { return areas; }
+            get
+            {
+                return areas;
+            }
             set
             {
                 areas = value;
-                OnPropertyChanged(nameof(Areas));
+                OnPropertyChanged("Areas");
             }
         }
+
         private Areas selectedArea { get; set; }
+
         public Areas SelectedArea
         {
-            get { return selectedArea; }
+            get
+            {
+                return selectedArea;
+            }
             set
             {
                 selectedArea = value;
-                OnPropertyChanged(nameof(SelectedArea));
+                OnPropertyChanged("SelectedArea");
                 UpdatePreparedCity();
             }
         }
-        private void UpdatePreparedCity()
-        {
-            PreparedCity.Clear(); // очищаем предыдущие значения
-            foreach (var city in Cities)
-            {
-                if (city.Area == SelectedArea?.AreaName && city.Min5Day_092 != 0)
-                {
-                    PreparedCity.Add(city);
-                }
-            }
-        }
+
         private City selectedCity { get; set; }
+
         public City SelectedCity
         {
-            get { return selectedCity; }
+            get
+            {
+                return selectedCity;
+            }
             set
             {
                 selectedCity = value;
-                OnPropertyChanged(nameof(SelectedCity));
+                OnPropertyChanged("SelectedCity");
             }
         }
+
         private double underground { get; set; }
+
         public double Underground
         {
-            get { return underground; }
+            get
+            {
+                return underground;
+            }
             set
             {
                 underground = value;
-                OnPropertyChanged(nameof(Underground));
+                OnPropertyChanged("Underground");
             }
         }
+
         private double koeffizientOuterWall { get; set; }
+
         public double KoeffizientOuterWall
         {
-            get { return koeffizientOuterWall; }
+            get
+            {
+                return koeffizientOuterWall;
+            }
             set
             {
                 koeffizientOuterWall = value;
-                OnPropertyChanged(nameof(KoeffizientOuterWall));
+                OnPropertyChanged("KoeffizientOuterWall");
+            }
+        }
+
+        private double koeffizientInnerWall { get; set; }
+
+        public double KoeffizientInnerWall
+        {
+            get
+            {
+                return koeffizientInnerWall;
+            }
+            set
+            {
+                koeffizientInnerWall = value;
+                OnPropertyChanged("KoeffizientInnerWall");
             }
         }
 
         private double koeffizientWindow { get; set; }
+
         public double KoeffizientWindow
         {
-            get { return koeffizientWindow; }
+            get
+            {
+                return koeffizientWindow;
+            }
             set
             {
                 koeffizientWindow = value;
-                OnPropertyChanged(nameof(KoeffizientWindow));
+                OnPropertyChanged("KoeffizientWindow");
             }
         }
+
         private double koeffizientDoor { get; set; }
+
         public double KoeffizientOuterDoor
         {
-            get { return koeffizientDoor; }
+            get
+            {
+                return koeffizientDoor;
+            }
             set
             {
                 koeffizientDoor = value;
-                OnPropertyChanged(nameof(KoeffizientOuterDoor));
+                OnPropertyChanged("KoeffizientOuterDoor");
             }
         }
 
         private double koeffizientGarageDoor { get; set; }
+
         public double KoeffizientGarageDoor
         {
-            get { return koeffizientGarageDoor; }
+            get
+            {
+                return koeffizientGarageDoor;
+            }
             set
             {
                 koeffizientGarageDoor = value;
-                OnPropertyChanged(nameof(KoeffizientGarageDoor));
+                OnPropertyChanged("KoeffizientGarageDoor");
             }
         }
 
-
-
-        private SettingsViewModel settingsViewModel;
         public SettingsViewModel SettingsViewModel
         {
-            get { return settingsViewModel; }
+            get
+            {
+                return settingsViewModel;
+            }
             set
             {
                 settingsViewModel = value;
                 OnPropertyChanged("SettingsViewModel");
             }
         }
-        public ICommand SettingsCommand { get; }
-        public void SettingCmd(object param)
-        {
-           if (SettingsCntrl == null)
-            {
-                SettingsCntrl = new SettingsControl();
-                SettingsCntrl.Show();
-            }
-           SettingsCntrl.ShowDialog();
-        }
 
+        public ICommand SettingsCommand { get; }
 
         public ICommand StartCommand { get; }
-        public void StartCmd(object param)
-        {
-            if (SelectedLink!=null && SelectedCity!=null && SelectedArea!=null)
-            {
-                CollectAllRooms(Document, SelectedLink,SelectedCity);
-            }
-            else
-            {
-                TaskDialog.Show("Ошибка", "Необходимо заполнить поля");
-            }
-        }
-
-      
-
-        [Obsolete]
-        private void CollectAllRooms(Autodesk.Revit.DB.Document document, Element selectedLink, City preparedCity)
-        {
-            var activedocument = (document.GetElement(selectedLink.Id) as RevitLinkInstance).GetLinkDocument();
-            FilteredElementCollector linkedFilter = new FilteredElementCollector(activedocument);
-            var selectedRooms = linkedFilter.OfCategory(BuiltInCategory.OST_Rooms).WhereElementIsNotElementType().ToList();
-            SpatialElementBoundaryOptions options = new SpatialElementBoundaryOptions();
-            List<CustomWall> walls = new List<CustomWall>();
-            HashSet<(ElementId wallId, ElementId roomId)> uniquePairs = new HashSet<(ElementId, ElementId)>();
-            List<CustomRoom> customrooms = new List<CustomRoom>();
-            foreach (var room in selectedRooms)
-            {
-                
-                CustomRoom customroom = new CustomRoom(activedocument, room, SelectedCity,KoeffizientOuterDoor,KoeffizientGarageDoor,KoeffizientOuterWall,KoeffizientWindow);
-                customrooms.Add(customroom);
-            }
-            HashSet<ElementId> viewedWalls = new HashSet<ElementId>();
-
-            for (int i = 0; i < customrooms.Count; i++)
-            {
-                for (int j = 0; j < customrooms.Count; j++)
-                {
-                    if (i == j)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        for (int k = 0; k < customrooms[i].Walls.Count; k++)
-                        {
-                            // Проверка, была ли стена уже просмотрена
-                            if (viewedWalls.Contains(customrooms[i].Walls[k].ElementId))
-                            {
-                                continue; // Пропустить уже просмотренные стены
-                            }
-
-                            for (int l = 0; l < customrooms[j].Walls.Count; l++)
-                            {
-                                if (viewedWalls.Contains(customrooms[j].Walls[l].RoomId))
-                                {
-                                    continue; // Пропустить уже просмотренные стены
-                                }
-                                if (customrooms[i].Walls[k].Name.Contains("НС"))
-                                {
-                                    customrooms[i].Walls[k].TempOutside = SelectedCity.Min5Day_092;
-                                    customrooms[i].Walls[k].Koeffizient = customrooms[i].Walls[k].KOuterWall;
-                                }
-
-                                if (customrooms[i].Walls[k].ElementId == customrooms[j].Walls[l].ElementId)
-                                {
-                                    customrooms[i].Walls[k].TempOutside = customrooms[j].Walls[l].TempInside;
-                                    customrooms[i].Walls[k].Koeffizient = 2.1;
-                                }
-
-                               /* customrooms[i].Walls[k].Qbasis = WallCalculation(customrooms[i].Walls[k]);*/
-                                
-                            }
-
-                          
-                        }
-                    }
-                  
-                }
-                
-                //customrooms[i].WallCalculation();
-                //customrooms[i].WindowCalculation();
-                //customrooms[i].DoorCalculation();
-                //customrooms[i].RoomCalculation();
-            }
-
-
-            for (int i = 0; i < customrooms.Count; i++)
-            {
-                for (int j = 0; j < customrooms.Count; j++)
-                {
-                    if (i == j)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        for (int k = 0; k < customrooms[i].Doors.Count; k++)
-                        {
-                            // Проверка, была ли стена уже просмотрена
-                            /*if (viewedWalls.Contains(customrooms[i].Doors[k].ElementId))
-                            {
-                                continue; // Пропустить уже просмотренные стены
-                            }*/
-
-                            for (int l = 0; l < customrooms[j].Doors.Count; l++)
-                            {
-                                
-
-                                if (customrooms[i].Doors[k].WindowId == customrooms[j].Doors[l].WindowId)
-                                {
-                                    customrooms[i].Doors[k].TempOutside = customrooms[j].Doors[l].TempInside;
-                                }
-
-                                /* customrooms[i].Walls[k].Qbasis = WallCalculation(customrooms[i].Walls[k]);*/
-
-                            }
-
-
-                        }
-                    }
-
-                }
-                
-            }
-            /*customrooms[i].WallCalculation();
-            customrooms[i].WindowCalculation();
-            customrooms[i].DoorCalculation();
-            customrooms[i].RoomCalculation();*/
-            RoomCalculation(customrooms);
-
-
-
-            string a = "ElementId;Имя семейства;Имя комнаты;Id комнаты;Длина;Площадь;Твнутри;Тснаружи;К,м2/С*Вт;Qтеплопотери;Qобщ" + "\n";
-            foreach (var room in customrooms)
-            {
-                foreach (var wall in room.Walls)
-                {
-                    a += $"{wall.ElementId};{wall.Name};{room.Name};{room.RoomId};{wall.Length};{wall.Flache};{wall.TempInside};{wall.TempOutside};{wall.Koeffizient};{wall.Qbasis};{room.Qtot}\n";
-                }
-                foreach (var window in room.Windows)
-                {
-                    a += $"{window.WindowId};{window.Name};{window.RoomName};{room.RoomId};{window.Width};{window.Flache};{window.TempInside};{window.TempOutside};{window.Koeffizient};{window.Qbasis};{room.Qtot}\n";
-                }
-                foreach (var door in room.Doors)
-                {
-                    a += $"{door.WindowId};{door.Name};{door.RoomName};{room.RoomId};{door.Width};{door.Flache};{door.TempInside};{door.TempOutside};{door.Koeffizient};{door.Qbasis};{room.Qtot}\n";
-                }
-
-                /*o.Qbasis = o.Koeffizient * (o.TempInside - o.TempOutside) * o.Flache * o.Beta3;
-                a += $"{o.ElementId};{o.RoomName};{o.Length};{o.Flache};{o.TempInside};{o.TempOutside};{o.Qbasis};{o.Qtot}\n";*/
-            }
-
-            SaveFile(a);
-
-
-        }
-
-
-        public static double RoomCalculation(List<CustomRoom> customRooms)
-        {
-            var customGroups = customRooms.GroupBy(r => r.Name);
-
-            foreach (var customRoomsGroup in customGroups)
-            {
-                double totalQ = 0; // Переменная для хранения общего значения Q
-
-                foreach (var customRoom in customRoomsGroup)
-                {
-                    double res = 0;
-
-                    foreach (var wall in customRoom.Walls)
-                    {
-                        wall.Qbasis = 1.3 * wall.Koeffizient * wall.Flache * (wall.TempInside - wall.TempOutside);
-                        res += wall.Qbasis;
-                    }
-
-                    foreach (var window in customRoom.Windows)
-                    {
-                        window.Qbasis = 1.3 * window.Koeffizient * window.Flache * (window.TempInside - window.TempOutside);
-                        res += window.Qbasis;
-                    }
-
-                    foreach (var door in customRoom.Doors)
-                    {
-                        door.Qbasis = 1.3 * door.Koeffizient * door.Flache * (door.TempInside - door.TempOutside);
-                        res += door.Qbasis;
-                    }
-
-                    customRoom.Qtot = res; // Сохраняем результат в текущей комнате
-                    totalQ += res; // Добавляем к общему значению
-                }
-                customRoomsGroup.First().Qtot = totalQ;
-                // Вы можете использовать totalQ здесь, если это необходимо для дальнейших расчетов
-            }
-
-            return 0; // Возвращаем общее значение Q
-        }
-
-        /*public double WallCalculation (CustomWall wall)
-        {
-            double res = 0;
-             res = 1.3 * wall.Koeffizient * wall.Flache * (wall.TempInside - wall.TempOutside);
-
-            return res;
-        }
-        public double WindowCalculation(CustomRoom room)
-        {
-            foreach (var window in room.Windows )
-            {
-                double res = 0;
-                res = 1.3 * window.Koeffizient * window.Flache * (window.TempInside - window.TempOutside);
-                return res;
-            }
-
-            return 0;
-           
-        }
-        
-
-        public double RoomCalculation(CustomRoom customRoom)
-        {
-            double res = 0;
-
-            foreach (var wall in customRoom.Walls)
-            {
-                res += wall.Qbasis;
-
-            }
-            foreach (var window in customRoom.Windows)
-            {
-                  
-               res += window.Qbasis;
-                
-            }
-
-            foreach (var door in customRoom.Doors)
-            {
-                res += door.Qbasis;
-            }
-
-
-            return res; 
-        }*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        public void SaveFile(string content) // спрятали функцию сохранения 
-        {
-            System.Windows.Forms.SaveFileDialog saveFileDialog = new System.Windows.Forms.SaveFileDialog();
-            saveFileDialog.Filter = "CSV files (*.csv)|*.csv";
-            saveFileDialog.Title = "Save CSV File";
-            //saveFileDialog.FileName = Collection.First().Elements.First().SystemName + ".csv";
-            if (saveFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                try
-                {
-
-                    using (StreamWriter writer = new StreamWriter(saveFileDialog.FileName))
-                    {
-                        writer.Write(content);
-                    }
-
-                    Console.WriteLine("CSV file saved successfully.");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Error saving CSV file: " + ex.Message);
-                }
-            }
-        }
 
         private ObservableCollection<City> preparedCity { get; set; } = new ObservableCollection<City>();
+
         public ObservableCollection<City> PreparedCity
         {
             get
             {
-                
                 return preparedCity;
             }
             set
             {
                 preparedCity = value;
-                OnPropertyChanged(nameof(PreparedCity));
-
+                OnPropertyChanged("PreparedCity");
             }
         }
 
         private List<Element> revitLinkInstances { get; set; } = new List<Element>();
+
         public List<Element> RevitLinkInstances
         {
             get
@@ -517,11 +282,12 @@ namespace KlimaKontrol
             set
             {
                 revitLinkInstances = value;
-                OnPropertyChanged(nameof(RevitLinkInstances));
+                OnPropertyChanged("RevitLinkInstances");
             }
         }
 
-        private Element selectedLink {  get; set; }
+        private Element selectedLink { get; set; }
+
         public Element SelectedLink
         {
             get
@@ -531,17 +297,240 @@ namespace KlimaKontrol
             set
             {
                 selectedLink = value;
-                OnPropertyChanged(nameof(SelectedLink));
+                OnPropertyChanged("SelectedLink");
             }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string propertyName)
+
+        private void UpdatePreparedCity()
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PreparedCity.Clear();
+            foreach (City city in Cities)
+            {
+                if (city.Area == SelectedArea?.AreaName && city.Min5Day_092 != 0.0)
+                {
+                    PreparedCity.Add(city);
+                }
+            }
         }
 
-        public MainViewModel(Autodesk.Revit.DB.Document doc, UserControl1 window,SettingsControl settings, SettingsViewModel settingsViewModel, ObservableCollection<City> cities, List<Element> revitLinkInstances)
+        public void SettingCmd(object param)
+        {
+            if (SettingsCntrl == null)
+            {
+                SettingsCntrl = new SettingsControl();
+                SettingsCntrl.Show();
+            }
+            SettingsCntrl.ShowDialog();
+        }
+
+        public void StartCmd(object param)
+        {
+            //IL_007a: Unknown result type (might be due to invalid IL or missing references)
+            if (SelectedLink != null && SelectedCity != null && SelectedArea != null)
+            {
+                (List<CustomRoom>, List<CustomWindow>, List<CustomDoors>, List<CustomFloor>) tuple = CreateRooms(Document, SelectedLink, SelectedCity);
+                List<CustomRoom> rooms = tuple.Item1;
+                List<CustomWindow> window = tuple.Item2;
+                List<CustomDoors> doors = tuple.Item3;
+                List<CustomFloor> floors = tuple.Item4;
+                string content = CreateContent(rooms, window, doors, floors);
+                SaveFile(content);
+            }
+            else
+            {
+                TaskDialog.Show("Ошибка", "Необходимо заполнить поля");
+            }
+        }
+
+        private (List<CustomRoom>, List<CustomWindow>, List<CustomDoors>, List<CustomFloor>) CreateRooms(Autodesk.Revit.DB.Document document, Element selectedLink, City selectedCity)
+        {
+            List<CustomRoom> rooms = new List<CustomRoom>();
+            Element element = document.GetElement(selectedLink.Id);
+            var activedocument = ((RevitLinkInstance)((element is RevitLinkInstance) ? element : null)).GetLinkDocument();
+            FilteredElementCollector linkedFilter = new FilteredElementCollector(activedocument);
+            List<Element> selectedRooms = ((IEnumerable<Element>)linkedFilter.OfCategory((BuiltInCategory)(-2000160)).WhereElementIsNotElementType()).ToList();
+            FilteredElementCollector floorsFilter = new FilteredElementCollector(activedocument);
+            List<Element> selectedZones = ((IEnumerable<Element>)floorsFilter.OfCategory((BuiltInCategory)(-2002000)).WhereElementIsNotElementType()).ToList();
+            foreach (Element room in selectedRooms)
+            {
+                CustomRoom customRoom = new CustomRoom(activedocument, room, selectedCity, KoeffizientOuterDoor, KoeffizientGarageDoor, KoeffizientOuterWall, KoeffizientInnerWall, KoeffizientWindow);
+                rooms.Add(customRoom);
+            }
+            List<CustomWall> walls = new List<CustomWall>();
+            foreach (CustomRoom room2 in rooms)
+            {
+                foreach (CustomWall wall in room2.Walls)
+                {
+                    walls.Add(wall);
+                }
+            }
+            double koeffizientFloor = 0.0;
+            if (selectedZones.Count > 0)
+            {
+                double zoneGeneral = 0.0;
+                double zone1 = 0.0;
+                double zone2 = 0.0;
+                double zone3 = 0.0;
+                double zone4 = 0.0;
+                foreach (Element zone in selectedZones)
+                {
+                    if (zone == null)
+                    {
+                        continue;
+                    }
+                    zoneGeneral += Convert.ToDouble(zone.get_Parameter(BuiltInParameter.HOST_AREA_COMPUTED).AsValueString());
+                    try
+                    {
+                        if (zone.LookupParameter("ADSK_Группирование").AsString().Equals("Зона1"))
+                        {
+                            zone1 += Convert.ToDouble(zone.get_Parameter(BuiltInParameter.HOST_AREA_COMPUTED).AsValueString());
+                        }
+                        else if (zone.LookupParameter("ADSK_Группирование").AsString().Equals("Зона2"))
+                        {
+                            zone2 += Convert.ToDouble(zone.get_Parameter(BuiltInParameter.HOST_AREA_COMPUTED).AsValueString());
+                        }
+                        else if (zone.LookupParameter("ADSK_Группирование").AsString().Equals("Зона3"))
+                        {
+                            zone3 += Convert.ToDouble(zone.get_Parameter(BuiltInParameter.HOST_AREA_COMPUTED).AsValueString());
+                        }
+                        else if (zone.LookupParameter("ADSK_Группирование").AsString().Equals("Зона4"))
+                        {
+                            zone4 += Convert.ToDouble(zone.get_Parameter(BuiltInParameter.HOST_AREA_COMPUTED).AsValueString());
+                        }
+                    }
+                    catch
+                    {
+                    }
+                }
+                double resistFloor = zoneGeneral / (zone1 / 2.1 + zone2 / 3.8 + zone3 / 5.2 + zone4 / 7.7);
+                koeffizientFloor = 1.0 / resistFloor;
+            }
+            List<CustomFloor> floors = new List<CustomFloor>();
+            foreach (CustomRoom room3 in rooms)
+            {
+                CustomFloor customFloor = new CustomFloor(activedocument, room3, selectedCity, koeffizientFloor);
+                if (!floors.Any((CustomFloor w) => w.RoomId == customFloor.RoomId))
+                {
+                    floors.Add(customFloor);
+                }
+            }
+            for (int i = 0; i < walls.Count; i++)
+            {
+                for (int j = 0; j < walls.Count; j++)
+                {
+                    if (i != j && walls[i].ElementId == walls[j].ElementId)
+                    {
+                        double room1tempIn = walls[i].TempInside;
+                        double room1tempOut = walls[i].TempOutside;
+                        double room2tempIn = walls[j].TempInside;
+                        double room2tempOut = walls[j].TempOutside;
+                        walls[i].TempInside = room1tempIn;
+                        walls[i].TempOutside = room2tempIn;
+                        walls[j].TempInside = room2tempIn;
+                        walls[j].TempOutside = room1tempIn;
+                    }
+                }
+            }
+            foreach (CustomWall wall2 in walls)
+            {
+                if (wall2.Name.Contains("_НС"))
+                {
+                    wall2.TempOutside = selectedCity.Min5Day_092;
+                }
+                wall2.Calculate();
+            }
+            List<CustomWindow> windows = new List<CustomWindow>();
+            List<CustomDoors> doors = new List<CustomDoors>();
+            foreach (CustomWall wall3 in walls)
+            {
+                Element el = activedocument.GetElement(wall3.ElementId);
+                IList<ElementId> hostObject = ((HostObject)((el is HostObject) ? el : null)).FindInserts(true, false, false, false);
+                foreach (ElementId host in hostObject)
+                {
+                    Element element2 = activedocument.GetElement(host);
+                    if (element2.Category.Id == new ElementId((BuiltInCategory)(-2000014)))
+                    {
+                        CustomWindow customWindow = new CustomWindow(activedocument, rooms, element2, selectedCity, KoeffizientWindow);
+                        if (!windows.Any((CustomWindow w) => w.WindowId == customWindow.WindowId))
+                        {
+                            windows.Add(customWindow);
+                        }
+                    }
+                    else if (element2.Category.Id == new ElementId((BuiltInCategory)(-2000023)))
+                    {
+                        CustomDoors customDoor = new CustomDoors(activedocument, rooms, element2, selectedCity, KoeffizientOuterDoor, koeffizientGarageDoor);
+                        if (!doors.Any((CustomDoors d) => d.WindowId == customDoor.WindowId))
+                        {
+                            doors.Add(customDoor);
+                        }
+                    }
+                }
+            }
+            return (rooms, windows, doors, floors);
+        }
+
+        private string CreateContent(List<CustomRoom> rooms, List<CustomWindow> windows, List<CustomDoors> doors, List<CustomFloor> floors)
+        {
+            string content = "RoomId;RoomName;ElementId;ElementName;LevelName;Length;TempInside;TempOutside;RoomTo;RoomFrom;Koeffizient;Qbasis\n";
+            foreach (CustomRoom room in rooms)
+            {
+                foreach (CustomWall wall in room.Walls)
+                {
+                    string line = $"{room.RoomId};{room.Name};{wall.ElementId};{wall.Name};{wall.LvlName};{wall.Flache};{wall.TempInside};{wall.TempOutside};;;{wall.Koeffizient};{wall.Qbasis}" + "\n";
+                    content += line;
+                }
+            }
+            foreach (CustomWindow window in windows)
+            {
+                string line2 = $"{window.RoomId};{window.RoomName};{window.WindowId};{window.Name};{window.LvlName};{window.Flache};{window.TempInside};{window.TempOutside};;;{window.Koeffizient};{window.Qbasis}" + "\n";
+                content += line2;
+            }
+            foreach (CustomDoors door in doors)
+            {
+                string line3 = $"{door.RoomId};{door.RoomName};{door.WindowId};{door.Name};{door.LvlName};{door.Flache};{door.TempInside};{door.TempOutside};{door.RoomTo};{door.RoomFrom};{door.Koeffizient};{door.Qbasis}" + "\n";
+                content += line3;
+            }
+            foreach (CustomFloor floor in floors)
+            {
+                string line4 = $"{floor.RoomId};{floor.Name};Не определено;Площадь пола;{floor.LvlName};{floor.Flache};{floor.TempIn};{floor.TempOut};;;{floor.Koeffizient};{floor.Qbasis}" + "\n";
+                content += line4;
+            }
+            return content;
+        }
+
+
+
+        public void SaveFile(string content)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "CSV files (*.csv)|*.csv";
+            saveFileDialog.Title = "Save CSV File";
+            if (saveFileDialog.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+            try
+            {
+                using (StreamWriter writer = new StreamWriter(saveFileDialog.FileName))
+                {
+                    writer.Write(content);
+                }
+                Console.WriteLine("CSV file saved successfully.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error saving CSV file: " + ex.Message);
+            }
+        }
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public MainViewModel(Autodesk.Revit.DB.Document doc, UserControl1 window, SettingsControl settings, SettingsViewModel settingsViewModel, ObservableCollection<City> cities, List<Element> revitLinkInstances)
         {
             Window = window;
             Document = doc;
@@ -553,25 +542,14 @@ namespace KlimaKontrol
             Areas = new ObservableCollection<Areas>();
             PreparedCity = new ObservableCollection<City>();
             RevitLinkInstances = revitLinkInstances;
-            foreach (var city in cities)
+            foreach (City city in cities)
             {
-                if (city.Min5Day_092 == 0)
+                if (city.Min5Day_092 == 0.0)
                 {
                     Areas area = new Areas(city.Area);
                     Areas.Add(area);
                 }
             }
-
-
-            /*foreach (var city in cities)
-            {
-                if (city.Area == SelectedArea && city.Min5Day_092!=0)
-                {
-                    PreparedCity preparedCity = new PreparedCity(city);
-                    PreparedCity.Add(preparedCity);
-                }
-            }*/
-
         }
     }
 }

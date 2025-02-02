@@ -81,6 +81,8 @@
             <StackPanel>
                 <Label Content="K фактическое стены наружной"></Label>
                 <TextBox Text="{Binding KoeffizientOuterWall}"></TextBox>
+                <Label Content="K фактическое стены внутренней"></Label>
+                <TextBox Text="{Binding KoeffizientInnerWall}"></TextBox>
                 <Label Content="K фактическое окна"></Label>
                 <TextBox Text="{Binding KoeffizientWindow}"></TextBox>
                 <Label Content="K фактическое дверь"></Label>
